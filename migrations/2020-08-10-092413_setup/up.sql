@@ -30,54 +30,54 @@ CREATE TABLE rooms (
 CREATE TABLE roles (
     id UUID NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
     room_id UUID REFERENCES rooms(id) ON DELETE CASCADE,
-
     name VARCHAR NOT NULL,
-    code_name VARCHAR,
-
     is_default BOOLEAN NOT NULL DEFAULT 'f',
     position SMALLSERIAL NULL DEFAULT 999,
 
     title_update SMALLINT DEFAULT -1,
     path_update SMALLINT DEFAULT -1,
+    public_update INTEGER DEFAULT -1,
+    room_delete INTEGER DEFAULT -1,
+
+    embed_links INTEGER DEFAULT -1,
+    audit_log_read SMALLINT DEFAULT -1,
+
+    password_create SMALLINT DEFAULT -1,
+    password_update SMALLINT DEFAULT -1,
+    password_delete SMALLINT DEFAULT -1,
 
     emote_create SMALLINT DEFAULT -1,
     emote_update SMALLINT DEFAULT -1,
     emote_delete SMALLINT DEFAULT -1,
+    emote_view SMALLINT DEFAULT -1,
 
     role_create SMALLINT DEFAULT -1,
     role_delete SMALLINT DEFAULT -1,
     role_update SMALLINT DEFAULT -1,
+    role_view SMALLINT DEFAULT -1,
 
     video_create SMALLINT DEFAULT -1,
     video_delete SMALLINT DEFAULT -1,
+    video_watch SMALLINT DEFAULT -1,
     video_move SMALLINT DEFAULT -1,
     video_iframe SMALLINT DEFAULT -1,
     video_raw SMALLINT DEFAULT -1,
 
-    subtitles_file SMALLINT DEFAULT -1,
-    subtitles_embed SMALLINT DEFAULT -1,
-
     player_pause SMALLINT DEFAULT -1,
     player_resume SMALLINT DEFAULT -1,
     player_rewind SMALLINT DEFAULT -1,
+    subtitles_file SMALLINT DEFAULT -1,
+    subtitles_embed SMALLINT DEFAULT -1,
 
     message_create SMALLINT DEFAULT -1,
     message_read SMALLINT DEFAULT -1,
     message_history_read SMALLINT DEFAULT -1,
+    message_timeout INTEGER DEFAULT -1,
 
     user_kick SMALLINT DEFAULT -1,
     user_ban SMALLINT DEFAULT -1,
     user_unban SMALLINT DEFAULT -1,
-    user_timeout SMALLINT DEFAULT -1,
-
-    password_create INTEGER DEFAULT -1,
-    password_update INTEGER DEFAULT -1,
-    password_delete INTEGER DEFAULT -1,
-
-    embed_links INTEGER DEFAULT -1,
-    audit_log_read SMALLINT DEFAULT -1,
-    room_delete INTEGER DEFAULT -1,
-    message_cooldown INTEGER DEFAULT -1,
+    user_timeout SMALLINT DEFAULT -1
 )
 
 -- "Everyone" - 1002
