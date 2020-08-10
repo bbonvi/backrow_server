@@ -2,10 +2,10 @@
 extern crate diesel;
 extern crate dotenv;
 
-mod debug;
-
 use dotenv::dotenv;
-use std::env;
+
+pub mod db;
+mod debug;
 
 fn main() {
     dotenv().ok();

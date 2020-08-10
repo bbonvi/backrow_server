@@ -1,7 +1,7 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE files (
-    id BIGSERIAL NOT NULL PRIMARY KEY, 
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, 
     hash VARCHAR NOT NULL,
     ext VARCHAR NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
@@ -9,12 +9,12 @@ CREATE TABLE files (
 
 CREATE TABLE users (
     id UUID NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
-    username VARCHAR NOT NULL,
+    username VARCHAR NOT NULL UNIQUE,
     nickname VARCHAR,
-    email VARCHAR,
+    email VARCHAR UNIQUE,
     password VARCHAR,
     color VARCHAR NOT NULL DEFAULT '#eeeeee',
-    image_id BIGSERIAL REFERENCES files(id) ON DELETE CASCADE,
+    image_id INT REFERENCES files(id) ON DELETE CASCADE,
     is_admin BOOLEAN NOT NULL DEFAULT 'f',
     last_login TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
@@ -23,7 +23,7 @@ CREATE TABLE users (
 CREATE TABLE rooms (
     id UUID NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
     title VARCHAR NOT NULL,
-    path VARCHAR NOT NULL,
+    path VARCHAR NOT NULL UNIQUE,
     is_public BOOLEAN NOT NULL DEFAULT 't',
     is_deleted BOOLEAN NOT NULL DEFAULT 'f',
     password VARCHAR,
@@ -33,9 +33,9 @@ CREATE TABLE rooms (
 );
 
 CREATE TABLE videos (
-    id BIGSERIAL NOT NULL PRIMARY KEY, 
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, 
     room_id UUID REFERENCES rooms(id) ON DELETE CASCADE,
-    subtitles_id BIGSERIAL REFERENCES files(id) ON DELETE CASCADE,
+    subtitles_id INT REFERENCES files(id) ON DELETE CASCADE,
     url VARCHAR NOT NULL,
     title VARCHAR,
     duration INTEGER NOT NULL DEFAULT -1,
@@ -47,62 +47,62 @@ CREATE TABLE videos (
 
 CREATE TABLE roles (
     id UUID NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
-    room_id UUID REFERENCES rooms(id) ON DELETE CASCADE,
+    room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
     name VARCHAR NOT NULL,
     is_default BOOLEAN NOT NULL DEFAULT 'f',
-    position SMALLINT NOT NULL DEFAULT 999,
+    position INTEGER NOT NULL DEFAULT 999,
 
-    title_update SMALLINT NOT NULL DEFAULT -1,
-    path_update SMALLINT NOT NULL DEFAULT -1,
+    title_update INTEGER NOT NULL DEFAULT -1,
+    path_update INTEGER NOT NULL DEFAULT -1,
     public_update INTEGER NOT NULL DEFAULT -1,
     room_delete INTEGER NOT NULL DEFAULT -1,
-    audit_log_read SMALLINT NOT NULL DEFAULT -1,
+    audit_log_read INTEGER NOT NULL DEFAULT -1,
 
     embed_links INTEGER NOT NULL DEFAULT -1,
     ping_everyone INTEGER NOT NULL DEFAULT -1,
 
-    password_create SMALLINT NOT NULL DEFAULT -1,
-    password_update SMALLINT NOT NULL DEFAULT -1,
-    password_delete SMALLINT NOT NULL DEFAULT -1,
+    password_create INTEGER NOT NULL DEFAULT -1,
+    password_update INTEGER NOT NULL DEFAULT -1,
+    password_delete INTEGER NOT NULL DEFAULT -1,
 
-    emote_create SMALLINT NOT NULL DEFAULT -1,
-    emote_update SMALLINT NOT NULL DEFAULT -1,
-    emote_delete SMALLINT NOT NULL DEFAULT -1,
-    emote_view SMALLINT NOT NULL DEFAULT -1,
+    emote_create INTEGER NOT NULL DEFAULT -1,
+    emote_update INTEGER NOT NULL DEFAULT -1,
+    emote_delete INTEGER NOT NULL DEFAULT -1,
+    emote_view INTEGER NOT NULL DEFAULT -1,
 
-    role_create SMALLINT NOT NULL DEFAULT -1,
-    role_delete SMALLINT NOT NULL DEFAULT -1,
-    role_update SMALLINT NOT NULL DEFAULT -1,
-    role_view SMALLINT NOT NULL DEFAULT -1,
+    role_create INTEGER NOT NULL DEFAULT -1,
+    role_delete INTEGER NOT NULL DEFAULT -1,
+    role_update INTEGER NOT NULL DEFAULT -1,
+    role_view INTEGER NOT NULL DEFAULT -1,
 
-    video_create SMALLINT NOT NULL DEFAULT -1,
-    video_delete SMALLINT NOT NULL DEFAULT -1,
-    video_watch SMALLINT NOT NULL DEFAULT -1,
-    video_move SMALLINT NOT NULL DEFAULT -1,
-    video_iframe SMALLINT NOT NULL DEFAULT -1,
-    video_raw SMALLINT NOT NULL DEFAULT -1,
+    video_create INTEGER NOT NULL DEFAULT -1,
+    video_delete INTEGER NOT NULL DEFAULT -1,
+    video_watch INTEGER NOT NULL DEFAULT -1,
+    video_move INTEGER NOT NULL DEFAULT -1,
+    video_iframe INTEGER NOT NULL DEFAULT -1,
+    video_raw INTEGER NOT NULL DEFAULT -1,
 
-    player_pause SMALLINT NOT NULL DEFAULT -1,
-    player_resume SMALLINT NOT NULL DEFAULT -1,
-    player_rewind SMALLINT NOT NULL DEFAULT -1,
-    subtitles_file SMALLINT NOT NULL DEFAULT -1,
-    subtitles_embed SMALLINT NOT NULL DEFAULT -1,
+    player_pause INTEGER NOT NULL DEFAULT -1,
+    player_resume INTEGER NOT NULL DEFAULT -1,
+    player_rewind INTEGER NOT NULL DEFAULT -1,
+    subtitles_file INTEGER NOT NULL DEFAULT -1,
+    subtitles_embed INTEGER NOT NULL DEFAULT -1,
 
-    message_create SMALLINT NOT NULL DEFAULT -1,
-    message_read SMALLINT NOT NULL DEFAULT -1,
-    message_history_read SMALLINT NOT NULL DEFAULT -1,
+    message_create INTEGER NOT NULL DEFAULT -1,
+    message_read INTEGER NOT NULL DEFAULT -1,
+    message_history_read INTEGER NOT NULL DEFAULT -1,
     message_timeout INTEGER NOT NULL DEFAULT -1,
 
-    user_kick SMALLINT NOT NULL DEFAULT -1,
-    user_ban SMALLINT NOT NULL DEFAULT -1,
-    user_unban SMALLINT NOT NULL DEFAULT -1,
-    user_timeout SMALLINT NOT NULL DEFAULT -1
+    user_kick INTEGER NOT NULL DEFAULT -1,
+    user_ban INTEGER NOT NULL DEFAULT -1,
+    user_unban INTEGER NOT NULL DEFAULT -1,
+    user_timeout INTEGER NOT NULL DEFAULT -1
 );
 
 CREATE TABLE emotes (
     id UUID NOT NULL PRIMARY KEY, 
     name VARCHAR,
-    image_id BIGSERIAL REFERENCES files(id) ON DELETE CASCADE,
+    image_id INT REFERENCES files(id) ON DELETE CASCADE,
     room_id UUID REFERENCES rooms(id) ON DELETE CASCADE,
     is_global BOOLEAN NOT NULL DEFAULT 'f',
     is_deleted BOOLEAN NOT NULL DEFAULT 'f',
@@ -149,7 +149,7 @@ CREATE TABLE messages (
 
 -- message itself
 CREATE TABLE message_mentions (
-    id BIGSERIAL NOT NULL PRIMARY KEY, 
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     messages_id UUID REFERENCES messages(id) ON DELETE CASCADE
 );
@@ -170,7 +170,7 @@ CREATE TABLE restrains (
 );
 
 CREATE TABLE audit_logs (
-    id BIGSERIAL NOT NULL PRIMARY KEY, 
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     -- 0 - add
     -- 1 - change
     -- 2 - delete
