@@ -38,9 +38,10 @@ CREATE TABLE roles (
     path_update SMALLINT DEFAULT -1,
     public_update INTEGER DEFAULT -1,
     room_delete INTEGER DEFAULT -1,
+    audit_log_read SMALLINT DEFAULT -1,
 
     embed_links INTEGER DEFAULT -1,
-    audit_log_read SMALLINT DEFAULT -1,
+    ping_everyone INTEGER DEFAULT -1,
 
     password_create SMALLINT DEFAULT -1,
     password_update SMALLINT DEFAULT -1,
