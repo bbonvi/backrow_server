@@ -131,6 +131,7 @@ table! {
         user_ban -> Int4,
         user_unban -> Int4,
         user_timeout -> Int4,
+        created_at -> Timestamp,
     }
 }
 

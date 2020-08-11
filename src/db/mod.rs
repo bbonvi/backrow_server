@@ -6,21 +6,21 @@ mod channels;
 mod emotes;
 mod errors;
 mod files;
-mod videos;
 mod messages;
-mod rooms;
 mod roles;
+mod rooms;
 mod users;
+mod videos;
 
 pub use channels::*;
 pub use emotes::*;
 pub use errors::*;
 pub use files::*;
-pub use roles::*;
 pub use messages::*;
-pub use videos::*;
+pub use roles::*;
 pub use rooms::*;
 pub use users::*;
+pub use videos::*;
 
 pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub fn get_pool() -> DbPool {
