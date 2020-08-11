@@ -151,8 +151,8 @@ CREATE TABLE messages (
 -- message itself
 CREATE TABLE message_mentions (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    messages_id UUID REFERENCES messages(id) ON DELETE CASCADE
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    message_id UUID NOT NULL REFERENCES messages(id) ON DELETE CASCADE
 );
 
 -- bans and timeouts

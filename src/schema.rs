@@ -57,8 +57,8 @@ table! {
 table! {
     message_mentions (id) {
         id -> Int4,
-        user_id -> Nullable<Uuid>,
-        messages_id -> Nullable<Uuid>,
+        user_id -> Uuid,
+        message_id -> Uuid,
     }
 }
 
@@ -193,7 +193,7 @@ joinable!(dm_channel_users -> users (user_id));
 joinable!(dm_channels -> channels (channel_id));
 joinable!(emotes -> files (image_id));
 joinable!(emotes -> rooms (room_id));
-joinable!(message_mentions -> messages (messages_id));
+joinable!(message_mentions -> messages (message_id));
 joinable!(message_mentions -> users (user_id));
 joinable!(messages -> channels (channel_id));
 joinable!(messages -> users (user_id));
