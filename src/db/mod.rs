@@ -3,16 +3,18 @@ use diesel::r2d2::{self, ConnectionManager};
 use dotenv::dotenv;
 
 mod channels;
+mod emotes;
 mod errors;
+mod messages;
 mod rooms;
 mod users;
-mod messages;
 
 pub use channels::*;
+pub use emotes::*;
 pub use errors::*;
+pub use messages::*;
 pub use rooms::*;
 pub use users::*;
-pub use messages::*;
 
 pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub fn get_pool() -> DbPool {

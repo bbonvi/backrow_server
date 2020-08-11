@@ -42,7 +42,7 @@ impl fmt::Display for Room {
     }
 }
 
-#[derive(AsChangeset, AsExpression, Insertable, Debug, Associations, Deserialize, Serialize)]
+#[derive(AsChangeset, AsExpression, Debug, Associations, Deserialize, Serialize)]
 #[table_name = "rooms"]
 // We only need camelCase for consistent debug output
 #[serde(rename_all = "camelCase")]
@@ -70,7 +70,7 @@ impl<'a> fmt::Display for NewRoom<'a> {
 }
 
 impl Room {
-    pub fn byid(room_id: Uuid, conn: &PgConnection) -> Result<Room, DieselError> {
+    pub fn by_id(room_id: Uuid, conn: &PgConnection) -> Result<Room, DieselError> {
         use crate::schema::rooms::dsl::*;
 
         rooms

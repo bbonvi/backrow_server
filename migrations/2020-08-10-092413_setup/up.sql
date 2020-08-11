@@ -148,7 +148,7 @@ CREATE TABLE messages (
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
--- message itself
+-- message mentions
 CREATE TABLE message_mentions (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,

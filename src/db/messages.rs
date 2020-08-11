@@ -1,4 +1,5 @@
 use super::DieselError;
+use crate::schema::message_mentions;
 use crate::schema::messages;
 
 use crate::diesel::prelude::*;
@@ -117,6 +118,35 @@ impl<'a> fmt::Display for NewMessage<'a> {
 }
 
 impl<'a> NewMessage<'a> {
+    pub fn create_with_mentions(
+        self: &'_ Self,
+        mentions: Vec<crate::db::User>,
+        conn: &PgConnection,
+    ) -> Result<Message, DieselError> {
+        use crate::schema::messages::dsl::*;
+
+        conn.transaction(|| {
+            let result_message = diesel::insert_into(messages)
+                .values(self)
+                .get_result::<Message>(conn)
+                .map_err(|err| {
+                    error!("Couldn't create message {}: {}", self, err);
+                    err
+                })?;
+
+            let mut mentions_iterator = mentions.iter();
+            if let Some(user) = mentions_iterator.next() {
+                let new_mention = NewMessageMention {
+                    user_id: user.id,
+                    message_id: result_message.id,
+                };
+
+                new_mention.create(conn)?;
+            }
+
+            Ok(result_message)
+        })
+    }
     pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<Message, DieselError> {
         use crate::schema::messages::dsl::*;
 
@@ -125,6 +155,52 @@ impl<'a> NewMessage<'a> {
             .get_result::<Message>(conn)
             .map_err(|err| {
                 error!("Couldn't create message {}: {}", self, err);
+                err
+            })
+            .map_err(From::from)
+    }
+}
+
+#[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+#[table_name = "message_mentions"]
+pub struct MessageMention {
+    pub id: i32,
+    pub user_id: Uuid,
+    pub message_id: Uuid,
+}
+
+impl MessageMention {
+    pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
+        use crate::schema::message_mentions::dsl::*;
+
+        diesel::delete(message_mentions.filter(id.eq(self.id)))
+            .execute(conn)
+            .map_err(|err| {
+                error!("Couldn't remove message {:?}: {}", self, err);
+                err
+            })
+            .map_err(From::from)
+    }
+}
+
+#[derive(AsChangeset, AsExpression, Insertable, Debug, Associations, Deserialize, Serialize)]
+#[table_name = "message_mentions"]
+// We only need camelCase for consistent debug output
+#[serde(rename_all = "camelCase")]
+pub struct NewMessageMention {
+    pub user_id: Uuid,
+    pub message_id: Uuid,
+}
+impl NewMessageMention {
+    pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<MessageMention, DieselError> {
+        use crate::schema::message_mentions::dsl::*;
+
+        diesel::insert_into(message_mentions)
+            .values(self)
+            .get_result::<MessageMention>(conn)
+            .map_err(|err| {
+                error!("Couldn't create message mention {:?}: {}", self, err);
                 err
             })
             .map_err(From::from)
