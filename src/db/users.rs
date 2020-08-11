@@ -3,7 +3,6 @@ use crate::schema::users;
 
 use crate::diesel::prelude::*;
 use crate::diesel::*;
-use crate::schema::*;
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
