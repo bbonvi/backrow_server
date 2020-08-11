@@ -2,11 +2,17 @@ use diesel::prelude::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
 use dotenv::dotenv;
 
+mod channels;
 mod errors;
+mod rooms;
 mod users;
+mod messages;
 
+pub use channels::*;
 pub use errors::*;
+pub use rooms::*;
 pub use users::*;
+pub use messages::*;
 
 pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub fn get_pool() -> DbPool {
