@@ -1,6 +1,6 @@
 use super::DieselError;
-use crate::schema::videos;
 use crate::schema::subtitles;
+use crate::schema::videos;
 
 use crate::diesel::prelude::*;
 use crate::diesel::*;
@@ -102,7 +102,6 @@ impl Video {
 
 #[derive(Insertable, AsChangeset, AsExpression, Debug, Associations, Deserialize, Serialize)]
 #[table_name = "videos"]
-// We only need camelCase for consistent debug output
 #[serde(rename_all = "camelCase")]
 pub struct NewVideo {
     pub room_id: Uuid,
@@ -185,7 +184,6 @@ impl Subtitles {
 
 #[derive(Insertable, AsChangeset, AsExpression, Debug, Associations, Deserialize, Serialize)]
 #[table_name = "subtitles"]
-// We only need camelCase for consistent debug output
 #[serde(rename_all = "camelCase")]
 pub struct NewSubtitles {
     pub file_id: i32,

@@ -9,12 +9,14 @@ mod files;
 mod videos;
 mod messages;
 mod rooms;
+mod roles;
 mod users;
 
 pub use channels::*;
 pub use emotes::*;
 pub use errors::*;
 pub use files::*;
+pub use roles::*;
 pub use messages::*;
 pub use videos::*;
 pub use rooms::*;
