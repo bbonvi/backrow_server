@@ -6,8 +6,6 @@ use crate::diesel::*;
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use std::fmt;
-use uuid::Uuid;
 
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -19,7 +17,7 @@ pub struct File {
 }
 
 impl File {
-    pub fn by_id(file_id: Uuid, conn: &PgConnection) -> Result<File, DieselError> {
+    pub fn by_id(file_id: i32, conn: &PgConnection) -> Result<File, DieselError> {
         use crate::schema::files::dsl::*;
 
         files
@@ -37,14 +35,14 @@ impl File {
         diesel::delete(files.filter(id.eq(self.id)))
             .execute(conn)
             .map_err(|err| {
-                error!("Couldn't remove file {}: {}", self, err);
+                error!("Couldn't remove file {:?}: {}", self, err);
                 err
             })
             .map_err(From::from)
     }
 }
 
-#[derive(AsChangeset, AsExpression, Debug, Associations, Deserialize, Serialize)]
+#[derive(Insertable, AsChangeset, AsExpression, Debug, Associations, Deserialize, Serialize)]
 #[table_name = "files"]
 // We only need camelCase for consistent debug output
 #[serde(rename_all = "camelCase")]
@@ -61,7 +59,7 @@ impl<'a> NewFile<'a> {
             .values(self)
             .get_result::<File>(conn)
             .map_err(|err| {
-                error!("Couldn't create file {}: {}", self, err);
+                error!("Couldn't create file {:?}: {}", self, err);
                 err
             })
             .map_err(From::from)

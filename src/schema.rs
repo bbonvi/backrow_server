@@ -2,8 +2,8 @@ table! {
     audit_logs (id) {
         id -> Int4,
         kind -> Int2,
-        user_id -> Nullable<Uuid>,
-        room_id -> Nullable<Uuid>,
+        user_id -> Uuid,
+        room_id -> Uuid,
         table_name -> Varchar,
         changes -> Varchar,
     }
@@ -35,9 +35,9 @@ table! {
 table! {
     emotes (id) {
         id -> Uuid,
-        name -> Nullable<Varchar>,
-        image_id -> Nullable<Int4>,
-        room_id -> Nullable<Uuid>,
+        name -> Varchar,
+        file_id -> Int4,
+        room_id -> Uuid,
         is_global -> Bool,
         is_deleted -> Bool,
         deleted_at -> Nullable<Timestamp>,
@@ -164,7 +164,7 @@ table! {
         email -> Nullable<Varchar>,
         password -> Nullable<Varchar>,
         color -> Nullable<Varchar>,
-        image_id -> Nullable<Int4>,
+        file_id -> Nullable<Int4>,
         is_admin -> Bool,
         last_login -> Nullable<Timestamp>,
         created_at -> Timestamp,
@@ -175,7 +175,7 @@ table! {
     videos (id) {
         id -> Int4,
         room_id -> Nullable<Uuid>,
-        subtitles_id -> Nullable<Int4>,
+        file_id -> Nullable<Int4>,
         url -> Varchar,
         title -> Nullable<Varchar>,
         duration -> Int4,
@@ -191,7 +191,7 @@ joinable!(audit_logs -> users (user_id));
 joinable!(dm_channel_users -> dm_channels (dm_channel_id));
 joinable!(dm_channel_users -> users (user_id));
 joinable!(dm_channels -> channels (channel_id));
-joinable!(emotes -> files (image_id));
+joinable!(emotes -> files (file_id));
 joinable!(emotes -> rooms (room_id));
 joinable!(message_mentions -> messages (message_id));
 joinable!(message_mentions -> users (user_id));
@@ -202,8 +202,8 @@ joinable!(restrains -> users (user_id));
 joinable!(roles -> rooms (room_id));
 joinable!(room_channels -> channels (channel_id));
 joinable!(room_channels -> rooms (room_id));
-joinable!(users -> files (image_id));
-joinable!(videos -> files (subtitles_id));
+joinable!(users -> files (file_id));
+joinable!(videos -> files (file_id));
 joinable!(videos -> rooms (room_id));
 
 allow_tables_to_appear_in_same_query!(
