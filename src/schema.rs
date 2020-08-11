@@ -12,7 +12,7 @@ table! {
 table! {
     channels (id) {
         id -> Uuid,
-        deleted_at -> Timestamp,
+        deleted_at -> Nullable<Timestamp>,
         created_at -> Timestamp,
     }
 }
