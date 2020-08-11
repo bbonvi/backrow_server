@@ -76,10 +76,6 @@ impl Room {
         rooms
             .filter(id.eq(room_id))
             .first::<Room>(conn)
-            .map(|room| {
-                debug!("Room {} has been queried by id {:?}", room, room_id);
-                room
-            })
             .map_err(|err| {
                 error!("Couldn't query room by id {:?}: {}", room_id, err);
                 err
@@ -92,10 +88,6 @@ impl Room {
         rooms
             .filter(path.eq(path))
             .first::<Room>(conn)
-            .map(|room| {
-                debug!("Room {} has been queried by path {:?}", room, path);
-                room
-            })
             .map_err(|err| {
                 error!("Couldn't query room by path {:?}: {}", path, err);
                 err
@@ -108,10 +100,6 @@ impl Room {
 
         diesel::delete(rooms.filter(id.eq(self.id)))
             .execute(conn)
-            .map(|room| {
-                debug!("Room {} has been removed", self);
-                room
-            })
             .map_err(|err| {
                 error!("Couldn't remove room {}: {}", self, err);
                 err
@@ -124,10 +112,6 @@ impl Room {
         diesel::update(rooms)
             .set(self)
             .get_result::<Room>(conn)
-            .map(|room| {
-                debug!("Room has been updated: {}", room);
-                room
-            })
             .map_err(|err| {
                 error!("Couldn't update room {}: {}", self, err);
                 err
@@ -143,10 +127,6 @@ impl<'a> NewRoom<'a> {
         diesel::insert_into(rooms)
             .values(self)
             .get_result::<Room>(conn)
-            .map(|room| {
-                debug!("Room has been created: {}", room);
-                room
-            })
             .map_err(|err| {
                 error!("Couldn't create room {}: {}", self, err);
                 err

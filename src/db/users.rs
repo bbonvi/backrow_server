@@ -97,10 +97,6 @@ impl User {
         users
             .filter(id.eq(user_id))
             .first::<User>(conn)
-            .map(|user| {
-                debug!("User {} has been queried by id {:?}", user, user_id);
-                user
-            })
             .map_err(|err| {
                 error!("Couldn't query user by id {:?}: {}", user_id, err);
                 err
@@ -113,10 +109,6 @@ impl User {
         users
             .filter(username.eq(name))
             .first::<User>(conn)
-            .map(|user| {
-                debug!("User {} has been queried by name {:?}", user, name);
-                user
-            })
             .map_err(|err| {
                 error!("Couldn't query user by name {:?}: {}", name, err);
                 err
@@ -129,10 +121,6 @@ impl User {
 
         diesel::delete(users.filter(id.eq(self.id)))
             .execute(conn)
-            .map(|user| {
-                debug!("User {} has been removed", self);
-                user
-            })
             .map_err(|err| {
                 error!("Couldn't remove user {}: {}", self, err);
                 err
@@ -145,10 +133,6 @@ impl User {
         diesel::update(users)
             .set(self)
             .get_result::<User>(conn)
-            .map(|user| {
-                debug!("User has been updated: {}", user);
-                user
-            })
             .map_err(|err| {
                 error!("Couldn't update user {}: {}", self, err);
                 err
@@ -164,10 +148,6 @@ impl<'a> NewUser<'a> {
         diesel::insert_into(users)
             .values(self)
             .get_result::<User>(conn)
-            .map(|user| {
-                debug!("User has been created: {}", user);
-                user
-            })
             .map_err(|err| {
                 error!("Couldn't create user {}: {}", self, err);
                 err

@@ -39,13 +39,6 @@ impl Channel {
         channels
             .filter(id.eq(channel_id))
             .first::<Channel>(conn)
-            .map(|channel| {
-                debug!(
-                    "Channel {:?} has been queried by id {:?}",
-                    channel, channel_id
-                );
-                channel
-            })
             .map_err(|err| {
                 error!("Couldn't query channel by id {:?}: {}", channel_id, err);
                 err
@@ -58,10 +51,6 @@ impl Channel {
 
         diesel::delete(channels.filter(id.eq(self.id)))
             .execute(conn)
-            .map(|size| {
-                debug!("Channel {:?} has been removed", self);
-                size
-            })
             .map_err(|err| {
                 error!("Couldn't remove channel {:?}: {}", self, err);
                 err
@@ -74,10 +63,6 @@ impl Channel {
         diesel::update(channels)
             .set(self)
             .get_result::<Channel>(conn)
-            .map(|channel| {
-                debug!("Channel has been updated: {:?}", channel);
-                channel
-            })
             .map_err(|err| {
                 error!("Couldn't update channel {:?}: {}", self, err);
                 err
@@ -97,10 +82,6 @@ impl NewChannel {
         diesel::insert_into(channels)
             .default_values()
             .get_result::<Channel>(conn)
-            .map(|channel| {
-                debug!("Channel has been created: {:?}", channel);
-                channel
-            })
             .map_err(|err| {
                 error!("Couldn't create channel: {}", err);
                 err
@@ -163,13 +144,6 @@ impl RoomChannel {
         room_channels
             .filter(id.eq(room_channel_id))
             .first::<RoomChannel>(conn)
-            .map(|channel| {
-                debug!(
-                    "Room channel {:?} has been queried by id {:?}",
-                    channel, room_channel_id
-                );
-                channel
-            })
             .map_err(|err| {
                 error!(
                     "Couldn't query room channel by id {:?}: {}",
@@ -185,10 +159,6 @@ impl RoomChannel {
 
         diesel::delete(room_channels.filter(id.eq(self.id)))
             .execute(conn)
-            .map(|size| {
-                debug!("Room channel {:?} has been removed", self);
-                size
-            })
             .map_err(|err| {
                 error!("Couldn't remove room channel {:?}: {}", self, err);
                 err
@@ -201,10 +171,6 @@ impl RoomChannel {
         diesel::update(room_channels)
             .set(self)
             .get_result::<RoomChannel>(conn)
-            .map(|channel| {
-                debug!("Room channel has been updated: {:?}", channel);
-                channel
-            })
             .map_err(|err| {
                 error!("Couldn't update room channel {:?}: {}", self, err);
                 err
@@ -230,10 +196,6 @@ impl NewRoomChannel {
             diesel::insert_into(room_channels)
                 .values(self)
                 .get_result::<RoomChannel>(conn)
-                .map(|channel| {
-                    debug!("Room channel has been created: {:?}", channel);
-                    channel
-                })
                 .map_err(|err| {
                     error!("Couldn't create room channel: {}", err);
                     err
