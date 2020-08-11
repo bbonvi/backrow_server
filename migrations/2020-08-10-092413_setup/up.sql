@@ -123,20 +123,20 @@ CREATE TABLE channels (
 -- Channel of type ROOM
 CREATE TABLE room_channels (
     id UUID NOT NULL PRIMARY KEY,
-    channels_id UUID REFERENCES channels(id) ON DELETE CASCADE,
-    room_id UUID REFERENCES rooms(id) ON DELETE CASCADE
+    channels_id UUID NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
+    room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE
 );
 -- Channel of type DM
 CREATE TABLE dm_channels (
     id UUID NOT NULL PRIMARY KEY,
-    channels_id UUID REFERENCES channels(id) ON DELETE CASCADE
+    channels_id UUID NOT NULL REFERENCES channels(id) ON DELETE CASCADE
 );
 
 -- dm participants
 CREATE TABLE dm_channel_users (
     id UUID NOT NULL PRIMARY KEY, 
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    dm_channel_id UUID REFERENCES dm_channels(id) ON DELETE CASCADE
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    dm_channel_id UUID NOT NULL REFERENCES dm_channels(id) ON DELETE CASCADE
 );
 
 -- message itself

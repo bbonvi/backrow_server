@@ -20,15 +20,15 @@ table! {
 table! {
     dm_channels (id) {
         id -> Uuid,
-        channels_id -> Nullable<Uuid>,
+        channels_id -> Uuid,
     }
 }
 
 table! {
     dm_channel_users (id) {
         id -> Uuid,
-        user_id -> Nullable<Uuid>,
-        dm_channel_id -> Nullable<Uuid>,
+        user_id -> Uuid,
+        dm_channel_id -> Uuid,
     }
 }
 
@@ -137,8 +137,8 @@ table! {
 table! {
     room_channels (id) {
         id -> Uuid,
-        channels_id -> Nullable<Uuid>,
-        room_id -> Nullable<Uuid>,
+        channels_id -> Uuid,
+        room_id -> Uuid,
     }
 }
 
