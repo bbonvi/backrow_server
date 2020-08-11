@@ -1,5 +1,6 @@
 use super::DieselError;
 use crate::schema::videos;
+use crate::schema::subtitles;
 
 use crate::diesel::prelude::*;
 use crate::diesel::*;
@@ -141,6 +142,65 @@ impl NewVideo {
             .get_result::<Video>(conn)
             .map_err(|err| {
                 error!("Couldn't create video {:?}: {}", self, err);
+                err
+            })
+            .map_err(From::from)
+    }
+}
+
+#[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+#[table_name = "subtitles"]
+pub struct Subtitles {
+    pub id: i32,
+    pub file_id: i32,
+    pub url: Option<String>,
+}
+
+impl Subtitles {
+    pub fn by_id(subtitles_id: i32, conn: &PgConnection) -> Result<Subtitles, DieselError> {
+        use crate::schema::subtitles::dsl::*;
+
+        subtitles
+            .filter(id.eq(subtitles_id))
+            .first::<Subtitles>(conn)
+            .map_err(|err| {
+                error!("Couldn't query subtitles by id {:?}: {}", subtitles_id, err);
+                err
+            })
+            .map_err(From::from)
+    }
+    pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
+        use crate::schema::subtitles::dsl::*;
+
+        diesel::delete(subtitles.filter(id.eq(self.id)))
+            .execute(conn)
+            .map_err(|err| {
+                error!("Couldn't delete subtitles {:?}: {}", self, err);
+                err
+            })
+            .map_err(From::from)
+    }
+}
+
+#[derive(Insertable, AsChangeset, AsExpression, Debug, Associations, Deserialize, Serialize)]
+#[table_name = "subtitles"]
+// We only need camelCase for consistent debug output
+#[serde(rename_all = "camelCase")]
+pub struct NewSubtitles {
+    pub file_id: i32,
+    pub url: Option<String>,
+}
+
+impl NewSubtitles {
+    pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<Subtitles, DieselError> {
+        use crate::schema::subtitles::dsl::*;
+
+        diesel::insert_into(subtitles)
+            .values(self)
+            .get_result::<Subtitles>(conn)
+            .map_err(|err| {
+                error!("Couldn't create subtitles {:?}: {}", self, err);
                 err
             })
             .map_err(From::from)

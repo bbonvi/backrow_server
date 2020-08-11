@@ -157,6 +157,14 @@ table! {
 }
 
 table! {
+    subtitles (id) {
+        id -> Int4,
+        file_id -> Int4,
+        url -> Nullable<Varchar>,
+    }
+}
+
+table! {
     users (id) {
         id -> Uuid,
         username -> Varchar,
@@ -174,11 +182,12 @@ table! {
 table! {
     videos (id) {
         id -> Int4,
-        room_id -> Nullable<Uuid>,
+        room_id -> Uuid,
+        subtitles_id -> Nullable<Int4>,
         file_id -> Nullable<Int4>,
-        url -> Varchar,
+        url -> Nullable<Varchar>,
         title -> Nullable<Varchar>,
-        duration -> Int4,
+        duration -> Nullable<Int4>,
         is_raw -> Bool,
         is_iframe -> Bool,
         is_live -> Bool,
@@ -202,8 +211,8 @@ joinable!(restrains -> users (user_id));
 joinable!(roles -> rooms (room_id));
 joinable!(room_channels -> channels (channel_id));
 joinable!(room_channels -> rooms (room_id));
+joinable!(subtitles -> files (file_id));
 joinable!(users -> files (file_id));
-joinable!(videos -> files (file_id));
 joinable!(videos -> rooms (room_id));
 
 allow_tables_to_appear_in_same_query!(
@@ -219,6 +228,7 @@ allow_tables_to_appear_in_same_query!(
     roles,
     room_channels,
     rooms,
+    subtitles,
     users,
     videos,
 );
