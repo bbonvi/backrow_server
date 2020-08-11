@@ -139,7 +139,10 @@ pub struct RoomChannel {
 
 // TODO: pagination
 impl RoomChannel {
-    pub fn by_room_id(room_id_query: Uuid, conn: &PgConnection) -> Result<RoomChannel, DieselError> {
+    pub fn by_room_id(
+        room_id_query: Uuid,
+        conn: &PgConnection,
+    ) -> Result<RoomChannel, DieselError> {
         use crate::schema::room_channels::dsl::*;
 
         room_channels
@@ -221,7 +224,7 @@ impl NewRoomChannel {
     pub fn create(mut self, conn: &PgConnection) -> Result<RoomChannel, DieselError> {
         use crate::schema::room_channels::dsl::*;
         conn.transaction(|| {
-            let primary_channel = NewChannel::create(conn);
+            let primary_channel = NewChannel::create(conn)?;
             self.channel_id = Some(primary_channel.id);
 
             diesel::insert_into(room_channels)
