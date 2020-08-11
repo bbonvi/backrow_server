@@ -100,18 +100,18 @@ type WithName<'a> = diesel::dsl::Eq<users::username, &'a str>;
 type ByName<'a> = diesel::dsl::Filter<All, WithName<'a>>;
 
 impl User {
-    pub fn by_id(id: Uuid, conn: &PgConnection) -> Result<User, DieselError> {
+    pub fn by_id(user_id: Uuid, conn: &PgConnection) -> Result<User, DieselError> {
         use crate::schema::users::dsl::*;
 
         users
-            .filter(id.eq(id))
+            .filter(id.eq(user_id))
             .first::<User>(conn)
             .map(|user| {
-                debug!("User {} has been queried by id {:?}", user, id);
+                debug!("User {} has been queried by id {:?}", user, user_id);
                 user
             })
             .map_err(|err| {
-                error!("Couldn't query user by id {:?}: {}", id, err);
+                error!("Couldn't query user by id {:?}: {}", user_id, err);
                 err
             })
             .map_err(From::from)
