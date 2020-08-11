@@ -116,7 +116,7 @@ CREATE TABLE emotes (
 -- Base channel table
 CREATE TABLE channels (
     id UUID NOT NULL PRIMARY KEY,
-    deleted_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
