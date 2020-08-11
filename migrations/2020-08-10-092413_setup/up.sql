@@ -142,9 +142,9 @@ CREATE TABLE dm_channel_users (
 -- message itself
 CREATE TABLE messages (
     id UUID NOT NULL PRIMARY KEY, 
-    channel_id UUID REFERENCES channels(id) ON DELETE CASCADE,
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    content VARCHAR,
+    channel_id UUID NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    content VARCHAR NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 

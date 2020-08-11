@@ -65,9 +65,9 @@ table! {
 table! {
     messages (id) {
         id -> Uuid,
-        channel_id -> Nullable<Uuid>,
-        user_id -> Nullable<Uuid>,
-        content -> Nullable<Varchar>,
+        channel_id -> Uuid,
+        user_id -> Uuid,
+        content -> Varchar,
         created_at -> Timestamp,
     }
 }
