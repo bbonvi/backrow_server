@@ -20,7 +20,7 @@ table! {
 table! {
     dm_channels (id) {
         id -> Uuid,
-        channels_id -> Uuid,
+        channel_id -> Uuid,
     }
 }
 
@@ -190,7 +190,7 @@ joinable!(audit_logs -> rooms (room_id));
 joinable!(audit_logs -> users (user_id));
 joinable!(dm_channel_users -> dm_channels (dm_channel_id));
 joinable!(dm_channel_users -> users (user_id));
-joinable!(dm_channels -> channels (channels_id));
+joinable!(dm_channels -> channels (channel_id));
 joinable!(emotes -> files (image_id));
 joinable!(emotes -> rooms (room_id));
 joinable!(message_mentions -> messages (messages_id));

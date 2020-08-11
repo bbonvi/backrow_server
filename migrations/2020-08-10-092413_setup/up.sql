@@ -129,7 +129,7 @@ CREATE TABLE room_channels (
 -- Channel of type DM
 CREATE TABLE dm_channels (
     id UUID NOT NULL PRIMARY KEY,
-    channels_id UUID NOT NULL REFERENCES channels(id) ON DELETE CASCADE
+    channel_id UUID NOT NULL REFERENCES channels(id) ON DELETE CASCADE
 );
 
 -- dm participants
