@@ -10,13 +10,14 @@ use std::fmt;
 use uuid::Uuid;
 
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
+#[table_name = "emotes"]
 #[serde(rename_all = "camelCase")]
 pub struct Emote {
     pub id: Uuid,
     pub name: String,
 
     #[serde(skip_serializing)]
-    pub image_id: Uuid,
+    pub file_id: i32,
     pub room_id: Uuid,
 
     #[serde(skip_serializing)]
@@ -32,13 +33,13 @@ pub struct Emote {
     pub created_at: NaiveDateTime,
 }
 
-#[derive(AsExpression, Debug, Associations, Deserialize, Serialize)]
+#[derive(Insertable, AsExpression, Debug, Associations, Deserialize, Serialize)]
 #[table_name = "emotes"]
 // We only need camelCase for consistent debug output
 #[serde(rename_all = "camelCase")]
 pub struct NewEmote<'a> {
     pub name: &'a str,
-    pub image_id: Uuid,
+    pub file_id: i32,
     pub room_id: Uuid,
     pub is_global: bool,
     pub is_deleted: bool,

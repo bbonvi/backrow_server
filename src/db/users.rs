@@ -33,7 +33,7 @@ pub struct User {
     pub color: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub image_id: Option<i32>,
+    pub file_id: Option<i32>,
 
     #[serde(skip_serializing_if = "is_false")]
     pub is_admin: bool,
@@ -62,7 +62,7 @@ pub struct NewUser<'a> {
     #[serde(skip_serializing)]
     pub password: Option<String>,
     pub color: Option<String>,
-    pub image_id: Option<i32>,
+    pub file_id: Option<i32>,
 }
 impl<'a> Default for NewUser<'a> {
     fn default() -> Self {
@@ -72,7 +72,7 @@ impl<'a> Default for NewUser<'a> {
             email: None,
             password: None,
             color: None,
-            image_id: None,
+            file_id: None,
         }
     }
 }

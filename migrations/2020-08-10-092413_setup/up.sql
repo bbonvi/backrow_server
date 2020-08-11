@@ -14,7 +14,7 @@ CREATE TABLE users (
     email VARCHAR UNIQUE,
     password VARCHAR,
     color VARCHAR,
-    image_id INT REFERENCES files(id) ON DELETE CASCADE,
+    file_id INT REFERENCES files(id) ON DELETE CASCADE,
     is_admin BOOLEAN NOT NULL DEFAULT 'f',
     last_login TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
@@ -35,7 +35,7 @@ CREATE TABLE rooms (
 CREATE TABLE videos (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, 
     room_id UUID REFERENCES rooms(id) ON DELETE CASCADE,
-    subtitles_id INT REFERENCES files(id) ON DELETE CASCADE,
+    file_id INT REFERENCES files(id) ON DELETE CASCADE,
     url VARCHAR NOT NULL,
     title VARCHAR,
     duration INTEGER NOT NULL DEFAULT -1,
@@ -102,9 +102,9 @@ CREATE TABLE roles (
 
 CREATE TABLE emotes (
     id UUID NOT NULL PRIMARY KEY, 
-    name VARCHAR,
-    image_id INT REFERENCES files(id) ON DELETE CASCADE,
-    room_id UUID REFERENCES rooms(id) ON DELETE CASCADE,
+    name VARCHAR NOT NULL,
+    file_id INT NOT NULL REFERENCES files(id) ON DELETE CASCADE,
+    room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
     is_global BOOLEAN NOT NULL DEFAULT 'f',
     is_deleted BOOLEAN NOT NULL DEFAULT 'f',
     deleted_at TIMESTAMP,
@@ -176,8 +176,8 @@ CREATE TABLE audit_logs (
     -- 1 - change
     -- 2 - delete
     kind SMALLSERIAL NOT NULL,
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    room_id UUID REFERENCES rooms(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
 
     table_name VARCHAR NOT NULL,
     changes VARCHAR NOT NULL
