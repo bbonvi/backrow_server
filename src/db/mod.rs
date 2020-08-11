@@ -6,6 +6,7 @@ mod channels;
 mod emotes;
 mod errors;
 mod files;
+mod videos;
 mod messages;
 mod rooms;
 mod users;
@@ -15,6 +16,7 @@ pub use emotes::*;
 pub use errors::*;
 pub use files::*;
 pub use messages::*;
+pub use videos::*;
 pub use rooms::*;
 pub use users::*;
 

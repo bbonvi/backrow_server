@@ -1,13 +1,13 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE files (
+CREATE TABLE IF NOT EXISTS files (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, 
     hash VARCHAR NOT NULL,
     ext VARCHAR NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id UUID NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
     username VARCHAR NOT NULL UNIQUE,
     nickname VARCHAR,
@@ -20,7 +20,7 @@ CREATE TABLE users (
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE rooms (
+CREATE TABLE IF NOT EXISTS rooms (
     id UUID NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
     title VARCHAR NOT NULL,
     path VARCHAR NOT NULL UNIQUE,
@@ -32,20 +32,28 @@ CREATE TABLE rooms (
     deleted_at TIMESTAMP
 );
 
-CREATE TABLE videos (
+CREATE TABLE IF NOT EXISTS subtitles (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, 
-    room_id UUID REFERENCES rooms(id) ON DELETE CASCADE,
+    file_id INT NOT NULL REFERENCES files(id) ON DELETE CASCADE,
+    ext VARCHAR NOT NULL,
+    url VARCHAR
+);
+
+CREATE TABLE IF NOT EXISTS videos (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+    subtitles_id INT REFERENCES files(id) ON DELETE SET NULL,
     file_id INT REFERENCES files(id) ON DELETE CASCADE,
-    url VARCHAR NOT NULL,
+    url VARCHAR,
     title VARCHAR,
-    duration INTEGER NOT NULL DEFAULT -1,
+    duration INTEGER,
     is_raw BOOLEAN NOT NULL DEFAULT 'f',
     is_iframe BOOLEAN NOT NULL DEFAULT 'f',
     is_live BOOLEAN NOT NULL DEFAULT 'f',
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
     id UUID NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
     room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
     name VARCHAR NOT NULL,
@@ -100,7 +108,7 @@ CREATE TABLE roles (
     user_timeout INTEGER NOT NULL DEFAULT -1
 );
 
-CREATE TABLE emotes (
+CREATE TABLE IF NOT EXISTS emotes (
     id UUID NOT NULL PRIMARY KEY, 
     name VARCHAR NOT NULL,
     file_id INT NOT NULL REFERENCES files(id) ON DELETE CASCADE,
@@ -114,33 +122,33 @@ CREATE TABLE emotes (
 -- Messages
 
 -- Base channel table
-CREATE TABLE channels (
+CREATE TABLE IF NOT EXISTS channels (
     id UUID NOT NULL PRIMARY KEY,
     deleted_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- Channel of type ROOM
-CREATE TABLE room_channels (
+CREATE TABLE IF NOT EXISTS room_channels (
     id UUID NOT NULL PRIMARY KEY,
     channel_id UUID NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
     room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE
 );
 -- Channel of type DM
-CREATE TABLE dm_channels (
+CREATE TABLE IF NOT EXISTS dm_channels (
     id UUID NOT NULL PRIMARY KEY,
     channel_id UUID NOT NULL REFERENCES channels(id) ON DELETE CASCADE
 );
 
 -- dm participants
-CREATE TABLE dm_channel_users (
+CREATE TABLE IF NOT EXISTS dm_channel_users (
     id UUID NOT NULL PRIMARY KEY, 
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     dm_channel_id UUID NOT NULL REFERENCES dm_channels(id) ON DELETE CASCADE
 );
 
 -- message itself
-CREATE TABLE messages (
+CREATE TABLE IF NOT EXISTS messages (
     id UUID NOT NULL PRIMARY KEY, 
     channel_id UUID NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -149,14 +157,14 @@ CREATE TABLE messages (
 );
 
 -- message mentions
-CREATE TABLE message_mentions (
+CREATE TABLE IF NOT EXISTS message_mentions (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     message_id UUID NOT NULL REFERENCES messages(id) ON DELETE CASCADE
 );
 
 -- bans and timeouts
-CREATE TABLE restrains (
+CREATE TABLE IF NOT EXISTS restrains (
     id UUID NOT NULL PRIMARY KEY, 
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 
@@ -170,7 +178,7 @@ CREATE TABLE restrains (
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE audit_logs (
+CREATE TABLE IF NOT EXISTS audit_logs (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     -- 0 - add
     -- 1 - change
