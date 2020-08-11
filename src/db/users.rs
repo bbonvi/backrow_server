@@ -45,10 +45,6 @@ pub struct User {
     pub created_at: NaiveDateTime,
 }
 
-type AllColumns = (users::id, users::username, users::nickname);
-
-pub const ALL_COLUMNS: AllColumns = (users::id, users::username, users::nickname);
-
 impl fmt::Display for User {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let user = serde_json::to_string(self).unwrap();
@@ -88,16 +84,12 @@ impl<'a> fmt::Display for NewUser<'a> {
     }
 }
 
-// #[derive(Queryable, Debug, Identifiable, Serialize, Clone)]
-// #[table_name = "users"]
-// pub struct QueryUser<'a> {
-//     pub id: Option<Uuid>,
-//     pub username: Option<&'a str>,
-//     pub email: Option<&'a str>,
-// }
-type All = diesel::dsl::Select<users::table, AllColumns>;
-type WithName<'a> = diesel::dsl::Eq<users::username, &'a str>;
-type ByName<'a> = diesel::dsl::Filter<All, WithName<'a>>;
+// TODO: Remove later
+// type AllColumns = (users::id, users::username, users::nickname);
+// pub const ALL_COLUMNS: AllColumns = (users::id, users::username, users::nickname);
+// type All = diesel::dsl::Select<users::table, AllColumns>;
+// type WithName<'a> = diesel::dsl::Eq<users::username, &'a str>;
+// type ByName<'a> = diesel::dsl::Filter<All, WithName<'a>>;
 
 impl User {
     pub fn by_id(user_id: Uuid, conn: &PgConnection) -> Result<User, DieselError> {
