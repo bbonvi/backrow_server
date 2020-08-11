@@ -137,7 +137,7 @@ table! {
 table! {
     room_channels (id) {
         id -> Uuid,
-        channels_id -> Uuid,
+        channel_id -> Uuid,
         room_id -> Uuid,
     }
 }
@@ -200,7 +200,7 @@ joinable!(messages -> users (user_id));
 joinable!(restrains -> channels (channels_id));
 joinable!(restrains -> users (user_id));
 joinable!(roles -> rooms (room_id));
-joinable!(room_channels -> channels (channels_id));
+joinable!(room_channels -> channels (channel_id));
 joinable!(room_channels -> rooms (room_id));
 joinable!(users -> files (image_id));
 joinable!(videos -> files (subtitles_id));

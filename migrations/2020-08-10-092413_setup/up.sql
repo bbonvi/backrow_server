@@ -123,7 +123,7 @@ CREATE TABLE channels (
 -- Channel of type ROOM
 CREATE TABLE room_channels (
     id UUID NOT NULL PRIMARY KEY,
-    channels_id UUID NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
+    channel_id UUID NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
     room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE
 );
 -- Channel of type DM
