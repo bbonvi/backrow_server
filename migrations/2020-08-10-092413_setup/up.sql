@@ -13,7 +13,7 @@ CREATE TABLE users (
     nickname VARCHAR,
     email VARCHAR UNIQUE,
     password VARCHAR,
-    color VARCHAR NOT NULL DEFAULT '#eeeeee',
+    color VARCHAR,
     image_id INT REFERENCES files(id) ON DELETE CASCADE,
     is_admin BOOLEAN NOT NULL DEFAULT 'f',
     last_login TIMESTAMP,
@@ -49,6 +49,7 @@ CREATE TABLE roles (
     id UUID NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
     room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
     name VARCHAR NOT NULL,
+    color VARCHAR,
     is_default BOOLEAN NOT NULL DEFAULT 'f',
     position INTEGER NOT NULL DEFAULT 999,
 
