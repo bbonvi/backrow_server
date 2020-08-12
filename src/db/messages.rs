@@ -120,13 +120,14 @@ impl<'a> fmt::Display for NewMessage<'a> {
 impl<'a> NewMessage<'a> {
     pub fn create_with_mentions(
         self: &'_ Self,
-        mentions: Vec<crate::db::User>,
+        mentioned_users: Vec<crate::db::User>,
         conn: &PgConnection,
     ) -> Result<Message, DieselError> {
         use crate::schema::messages::dsl::*;
 
+        // we need transaction for atomicity and perfomant batch insert
         conn.transaction(|| {
-            let result_message = diesel::insert_into(messages)
+            let created_message = diesel::insert_into(messages)
                 .values(self)
                 .get_result::<Message>(conn)
                 .map_err(|err| {
@@ -134,17 +135,15 @@ impl<'a> NewMessage<'a> {
                     err
                 })?;
 
-            let mut mentions_iterator = mentions.iter();
-            if let Some(user) = mentions_iterator.next() {
-                let new_mention = NewMessageMention {
+            for user in mentioned_users {
+                NewMessageMention {
                     user_id: user.id,
-                    message_id: result_message.id,
-                };
-
-                new_mention.create(conn)?;
+                    message_id: created_message.id,
+                }
+                .create(conn)?;
             }
 
-            Ok(result_message)
+            Ok(created_message)
         })
     }
     pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<Message, DieselError> {

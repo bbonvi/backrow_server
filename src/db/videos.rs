@@ -116,16 +116,17 @@ pub struct NewVideo {
 }
 
 impl NewVideo {
-    /// Create multiple NewVideos in one transaction.
-    /// Usefull for perfomance reasons.
+    /// Create multiple NewVideos
     pub fn bulk_create(
         new_videos: Vec<NewVideo>,
         conn: &PgConnection,
     ) -> Result<Vec<Video>, DieselError> {
         let mut new_videos_iterator = new_videos.iter();
+
+        // Use transction for perfomance reasons.
         conn.transaction(|| {
             let mut result: Vec<Video> = Vec::new();
-            if let Some(new_video) = new_videos_iterator.next() {
+            for new_video in new_videos {
                 let created_video = new_video.create(conn)?;
                 result.push(created_video);
             }

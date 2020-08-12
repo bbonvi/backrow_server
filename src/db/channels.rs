@@ -189,18 +189,24 @@ pub struct NewRoomChannel {
 impl NewRoomChannel {
     pub fn create(mut self, conn: &PgConnection) -> Result<RoomChannel, DieselError> {
         use crate::schema::room_channels::dsl::*;
-        conn.transaction(|| {
-            let primary_channel = NewChannel::create(conn)?;
-            self.channel_id = Some(primary_channel.id);
 
-            diesel::insert_into(room_channels)
+        // use transaction to undo primary channel creation
+        conn.transaction(|| {
+            // create primary channel
+            let channel = NewChannel::create(conn)?;
+            self.channel_id = Some(channel.id);
+
+            // create room channel
+            let room_channel = diesel::insert_into(room_channels)
                 .values(self)
                 .get_result::<RoomChannel>(conn)
                 .map_err(|err| {
                     error!("Couldn't create room channel: {}", err);
                     err
                 })
-                .map_err(From::from)
+                .map_err(From::from);
+
+            room_channel
         })
     }
 }
