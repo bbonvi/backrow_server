@@ -6,7 +6,6 @@ use crate::diesel::*;
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use std::fmt;
 use uuid::Uuid;
 
 #[allow(clippy::trivially_copy_pass_by_ref)]
@@ -45,52 +44,6 @@ pub struct User {
     pub created_at: NaiveDateTime,
 }
 
-impl fmt::Display for User {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let user = serde_json::to_string(self).unwrap();
-        write!(f, "{}", user)
-    }
-}
-
-#[derive(AsChangeset, AsExpression, Insertable, Debug, Associations, Deserialize, Serialize)]
-#[table_name = "users"]
-// We only need camelCase for consistent debug output
-#[serde(rename_all = "camelCase")]
-pub struct NewUser<'a> {
-    pub username: &'a str,
-    pub nickname: Option<String>,
-    pub email: Option<String>,
-    #[serde(skip_serializing)]
-    pub password: Option<String>,
-    pub color: Option<String>,
-    pub file_id: Option<i32>,
-}
-impl<'a> Default for NewUser<'a> {
-    fn default() -> Self {
-        Self {
-            username: "",
-            nickname: None,
-            email: None,
-            password: None,
-            color: None,
-            file_id: None,
-        }
-    }
-}
-impl<'a> fmt::Display for NewUser<'a> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let user = serde_json::to_string(self).unwrap();
-        write!(f, "{}", user)
-    }
-}
-
-// TODO: Remove later
-// type AllColumns = (users::id, users::username, users::nickname);
-// pub const ALL_COLUMNS: AllColumns = (users::id, users::username, users::nickname);
-// type All = diesel::dsl::Select<users::table, AllColumns>;
-// type WithName<'a> = diesel::dsl::Eq<users::username, &'a str>;
-// type ByName<'a> = diesel::dsl::Filter<All, WithName<'a>>;
-
 impl User {
     pub fn by_id(user_id: Uuid, conn: &PgConnection) -> Result<User, DieselError> {
         use crate::schema::users::dsl::*;
@@ -104,6 +57,7 @@ impl User {
             })
             .map_err(From::from)
     }
+
     pub fn by_name(name: &str, conn: &PgConnection) -> Result<User, DieselError> {
         use crate::schema::users::dsl::*;
 
@@ -123,11 +77,12 @@ impl User {
         diesel::delete(users.filter(id.eq(self.id)))
             .execute(conn)
             .map_err(|err| {
-                error!("Couldn't remove user {}: {}", self, err);
+                error!("Couldn't remove user {:?}: {}", self, err);
                 err
             })
             .map_err(From::from)
     }
+
     pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<User, DieselError> {
         use crate::schema::users::dsl::*;
 
@@ -135,12 +90,47 @@ impl User {
             .set(self)
             .get_result::<User>(conn)
             .map_err(|err| {
-                error!("Couldn't update user {}: {}", self, err);
+                error!("Couldn't update user {:?}: {}", self, err);
                 err
             })
             .map_err(From::from)
     }
 }
+
+
+#[derive(AsChangeset, AsExpression, Insertable, Debug, Associations, Deserialize, Serialize)]
+#[table_name = "users"]
+// We only need camelCase for consistent debug output
+#[serde(rename_all = "camelCase")]
+pub struct NewUser<'a> {
+    pub username: &'a str,
+    pub nickname: Option<String>,
+    pub email: Option<String>,
+    #[serde(skip_serializing)]
+    pub password: Option<String>,
+    pub color: Option<String>,
+    pub file_id: Option<i32>,
+}
+
+impl<'a> Default for NewUser<'a> {
+    fn default() -> Self {
+        Self {
+            username: "",
+            nickname: None,
+            email: None,
+            password: None,
+            color: None,
+            file_id: None,
+        }
+    }
+}
+
+// TODO: Remove later
+// type AllColumns = (users::id, users::username, users::nickname);
+// pub const ALL_COLUMNS: AllColumns = (users::id, users::username, users::nickname);
+// type All = diesel::dsl::Select<users::table, AllColumns>;
+// type WithName<'a> = diesel::dsl::Eq<users::username, &'a str>;
+// type ByName<'a> = diesel::dsl::Filter<All, WithName<'a>>;
 
 impl<'a> NewUser<'a> {
     pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<User, DieselError> {
@@ -150,7 +140,7 @@ impl<'a> NewUser<'a> {
             .values(self)
             .get_result::<User>(conn)
             .map_err(|err| {
-                error!("Couldn't create user {}: {}", self, err);
+                error!("Couldn't create user {:?}: {}", self, err);
                 err
             })
             .map_err(From::from)

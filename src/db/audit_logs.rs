@@ -11,7 +11,6 @@ use std::io::Write;
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use std::fmt;
 use uuid::Uuid;
 
 #[derive(Debug, Copy, Clone, AsExpression, FromSqlRow, Serialize, Deserialize)]
@@ -61,26 +60,6 @@ pub struct AuditLog {
     pub room_id: Uuid,
     pub table_name: String,
     pub changes: String,
-    pub created_at: NaiveDateTime,
-}
-
-impl fmt::Display for AuditLog {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let audit_log = serde_json::to_string(self).unwrap();
-        write!(f, "{}", audit_log)
-    }
-}
-
-#[derive(Insertable, AsChangeset, AsExpression, Debug, Associations, Deserialize, Serialize)]
-#[table_name = "audit_logs"]
-// We only need camelCase for consistent debug output
-#[serde(rename_all = "camelCase")]
-pub struct NewAuditLog<'a> {
-    pub kind: AuditLogKind,
-    pub user_id: Uuid,
-    pub room_id: Uuid,
-    pub table_name: &'a str,
-    pub changes: &'a str,
     pub created_at: NaiveDateTime,
 }
 
@@ -165,6 +144,20 @@ impl AuditLog {
             })
             .map_err(From::from)
     }
+}
+
+
+#[derive(Insertable, AsChangeset, AsExpression, Debug, Associations, Deserialize, Serialize)]
+#[table_name = "audit_logs"]
+// We only need camelCase for consistent debug output
+#[serde(rename_all = "camelCase")]
+pub struct NewAuditLog<'a> {
+    pub kind: AuditLogKind,
+    pub user_id: Uuid,
+    pub room_id: Uuid,
+    pub table_name: &'a str,
+    pub changes: &'a str,
+    pub created_at: NaiveDateTime,
 }
 
 impl<'a> NewAuditLog<'a> {

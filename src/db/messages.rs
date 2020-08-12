@@ -9,7 +9,6 @@ use std::vec::Vec;
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use std::fmt;
 use uuid::Uuid;
 
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
@@ -20,13 +19,6 @@ pub struct Message {
     pub user_id: Uuid,
     pub content: String,
     pub created_at: NaiveDateTime,
-}
-
-impl fmt::Display for Message {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let message = serde_json::to_string(self).unwrap();
-        write!(f, "{}", message)
-    }
 }
 
 impl Message {
@@ -82,7 +74,7 @@ impl Message {
         diesel::delete(messages.filter(id.eq(self.id)))
             .execute(conn)
             .map_err(|err| {
-                error!("Couldn't remove message {}: {}", self, err);
+                error!("Couldn't remove message {:?}: {}", self, err);
                 err
             })
             .map_err(From::from)
@@ -94,7 +86,7 @@ impl Message {
             .set(self)
             .get_result::<Message>(conn)
             .map_err(|err| {
-                error!("Couldn't update message {}: {}", self, err);
+                error!("Couldn't update message {:?}: {}", self, err);
                 err
             })
             .map_err(From::from)
@@ -113,13 +105,6 @@ pub struct NewMessage<'a> {
 
 type MessageWithMentions = (Message, Vec<MessageMention>);
 type NewMessageWithMentions<'a> = (NewMessage<'a>, Vec<User>);
-
-impl<'a> fmt::Display for NewMessage<'a> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let new_message = serde_json::to_string(self).unwrap();
-        write!(f, "{}", new_message)
-    }
-}
 
 impl<'a> NewMessage<'a> {
     fn create_with_mentions(
@@ -204,6 +189,7 @@ pub struct NewMessageMention {
     pub user_id: Uuid,
     pub message_id: i32,
 }
+
 impl NewMessageMention {
     pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<MessageMention, DieselError> {
         use crate::schema::message_mentions::dsl::*;

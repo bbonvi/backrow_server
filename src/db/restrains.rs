@@ -6,7 +6,6 @@ use crate::diesel::*;
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use std::fmt;
 use uuid::Uuid;
 
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
@@ -24,30 +23,6 @@ pub struct Restrain {
     pub ending_at: Option<NaiveDateTime>,
     pub created_at: NaiveDateTime,
 }
-
-impl fmt::Display for Restrain {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let restrain = serde_json::to_string(self).unwrap();
-        write!(f, "{}", restrain)
-    }
-}
-
-#[derive(Insertable, AsChangeset, AsExpression, Debug, Associations, Deserialize, Serialize)]
-#[table_name = "restrains"]
-// We only need camelCase for consistent debug output
-#[serde(rename_all = "camelCase")]
-pub struct NewRestrain {
-    pub user_id: Uuid,
-    pub ip: Option<String>,
-    /// Probably won't be used
-    pub fingerprint: Option<String>,
-    pub channel_id: Option<Uuid>,
-    pub is_global: bool,
-    /// `is_ban` indicates whether restrain is ban or timeout
-    pub is_ban: bool,
-    pub ending_at: Option<NaiveDateTime>,
-}
-
 
 impl Restrain {
     pub fn by_id(restrain_id: Uuid, conn: &PgConnection) -> Result<Restrain, DieselError> {
@@ -96,7 +71,7 @@ impl Restrain {
         diesel::delete(restrains.filter(id.eq(self.id)))
             .execute(conn)
             .map_err(|err| {
-                error!("Couldn't remove restrain {}: {}", self, err);
+                error!("Couldn't remove restrain {:?}: {}", self, err);
                 err
             })
             .map_err(From::from)
@@ -108,11 +83,27 @@ impl Restrain {
             .set(self)
             .get_result::<Restrain>(conn)
             .map_err(|err| {
-                error!("Couldn't update restrain {}: {}", self, err);
+                error!("Couldn't update restrain {:?}: {}", self, err);
                 err
             })
             .map_err(From::from)
     }
+}
+
+#[derive(Insertable, AsChangeset, AsExpression, Debug, Associations, Deserialize, Serialize)]
+#[table_name = "restrains"]
+// We only need camelCase for consistent debug output
+#[serde(rename_all = "camelCase")]
+pub struct NewRestrain {
+    pub user_id: Uuid,
+    pub ip: Option<String>,
+    /// Probably won't be used
+    pub fingerprint: Option<String>,
+    pub channel_id: Option<Uuid>,
+    pub is_global: bool,
+    /// `is_ban` indicates whether restrain is ban or timeout
+    pub is_ban: bool,
+    pub ending_at: Option<NaiveDateTime>,
 }
 
 impl NewRestrain {
