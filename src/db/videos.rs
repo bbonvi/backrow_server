@@ -56,6 +56,7 @@ impl Video {
             })
             .map_err(From::from)
     }
+
     pub fn by_id(video_id: i32, conn: &PgConnection) -> Result<Video, DieselError> {
         use crate::schema::videos::dsl::*;
 
@@ -68,6 +69,7 @@ impl Video {
             })
             .map_err(From::from)
     }
+
     pub fn delete_all_by_room_id(
         room_id_query: Uuid,
         conn: &PgConnection,
@@ -87,6 +89,7 @@ impl Video {
             })
             .map_err(From::from)
     }
+
     pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::videos::dsl::*;
 

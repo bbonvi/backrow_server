@@ -43,6 +43,7 @@ impl Message {
             })
             .map_err(From::from)
     }
+
     pub fn list_by_room_id(
         room_id_query: Uuid,
         conn: &PgConnection,
@@ -68,6 +69,7 @@ impl Message {
                 .map_err(From::from)
         })
     }
+
     pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::messages::dsl::*;
 
@@ -79,6 +81,7 @@ impl Message {
             })
             .map_err(From::from)
     }
+
     pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<Message, DieselError> {
         use crate::schema::messages::dsl::*;
 

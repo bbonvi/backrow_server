@@ -55,6 +55,7 @@ impl Channel {
             })
             .map_err(From::from)
     }
+
     pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<Channel, DieselError> {
         use crate::schema::channels::dsl::*;
 

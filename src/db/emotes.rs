@@ -32,6 +32,66 @@ pub struct Emote {
     pub created_at: NaiveDateTime,
 }
 
+impl Emote {
+    // TODO: paginations
+    pub fn list_by_room_id(
+        room_id_query: Uuid,
+        conn: &PgConnection,
+    ) -> Result<Vec<Emote>, DieselError> {
+        use crate::schema::emotes::dsl::*;
+
+        emotes
+            .filter(room_id.eq(room_id_query))
+            .load::<Emote>(conn)
+            .map_err(|err| {
+                error!(
+                    "Couldn't query emote by room id {:?}: {}",
+                    room_id_query, err
+                );
+                err
+            })
+            .map_err(From::from)
+    }
+
+    pub fn by_id(emote_id: Uuid, conn: &PgConnection) -> Result<Emote, DieselError> {
+        use crate::schema::emotes::dsl::*;
+
+        emotes
+            .filter(id.eq(emote_id))
+            .first::<Emote>(conn)
+            .map_err(|err| {
+                error!("Couldn't query emote by id {:?}: {}", emote_id, err);
+                err
+            })
+            .map_err(From::from)
+    }
+
+    pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
+        use crate::schema::emotes::dsl::*;
+
+        diesel::delete(emotes.filter(id.eq(self.id)))
+            .execute(conn)
+            .map_err(|err| {
+                error!("Couldn't remove emote {:?}: {}", self, err);
+                err
+            })
+            .map_err(From::from)
+    }
+
+    pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<Emote, DieselError> {
+        use crate::schema::emotes::dsl::*;
+
+        diesel::update(emotes)
+            .set(self)
+            .get_result::<Emote>(conn)
+            .map_err(|err| {
+                error!("Couldn't update emote {:?}: {}", self, err);
+                err
+            })
+            .map_err(From::from)
+    }
+}
+
 #[derive(Insertable, AsExpression, Debug, Associations, Deserialize, Serialize)]
 #[table_name = "emotes"]
 // We only need camelCase for consistent debug output
@@ -59,59 +119,3 @@ impl<'a> NewEmote<'a> {
     }
 }
 
-impl Emote {
-    // TODO: paginations
-    pub fn list_by_room_id(
-        room_id_query: Uuid,
-        conn: &PgConnection,
-    ) -> Result<Vec<Emote>, DieselError> {
-        use crate::schema::emotes::dsl::*;
-
-        emotes
-            .filter(room_id.eq(room_id_query))
-            .load::<Emote>(conn)
-            .map_err(|err| {
-                error!(
-                    "Couldn't query emote by room id {:?}: {}",
-                    room_id_query, err
-                );
-                err
-            })
-            .map_err(From::from)
-    }
-    pub fn by_id(emote_id: Uuid, conn: &PgConnection) -> Result<Emote, DieselError> {
-        use crate::schema::emotes::dsl::*;
-
-        emotes
-            .filter(id.eq(emote_id))
-            .first::<Emote>(conn)
-            .map_err(|err| {
-                error!("Couldn't query emote by id {:?}: {}", emote_id, err);
-                err
-            })
-            .map_err(From::from)
-    }
-    pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
-        use crate::schema::emotes::dsl::*;
-
-        diesel::delete(emotes.filter(id.eq(self.id)))
-            .execute(conn)
-            .map_err(|err| {
-                error!("Couldn't remove emote {:?}: {}", self, err);
-                err
-            })
-            .map_err(From::from)
-    }
-    pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<Emote, DieselError> {
-        use crate::schema::emotes::dsl::*;
-
-        diesel::update(emotes)
-            .set(self)
-            .get_result::<Emote>(conn)
-            .map_err(|err| {
-                error!("Couldn't update emote {:?}: {}", self, err);
-                err
-            })
-            .map_err(From::from)
-    }
-}

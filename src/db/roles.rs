@@ -132,6 +132,7 @@ impl Role {
             })
             .map_err(From::from)
     }
+
     pub fn by_id(role_id: Uuid, conn: &PgConnection) -> Result<Role, DieselError> {
         use crate::schema::roles::dsl::*;
 
@@ -144,6 +145,7 @@ impl Role {
             })
             .map_err(From::from)
     }
+
     pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::roles::dsl::*;
 
@@ -155,6 +157,7 @@ impl Role {
             })
             .map_err(From::from)
     }
+
     pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<Role, DieselError> {
         use crate::schema::roles::dsl::*;
 

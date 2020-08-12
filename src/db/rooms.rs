@@ -47,6 +47,7 @@ impl Room {
             })
             .map_err(From::from)
     }
+
     pub fn by_path(path_query: &str, conn: &PgConnection) -> Result<Room, DieselError> {
         use crate::schema::rooms::dsl::*;
 
@@ -71,6 +72,7 @@ impl Room {
             })
             .map_err(From::from)
     }
+
     pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<Room, DieselError> {
         use crate::schema::rooms::dsl::*;
 

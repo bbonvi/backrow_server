@@ -99,6 +99,7 @@ impl AuditLog {
             })
             .map_err(From::from)
     }
+
     pub fn list_by_user_id(
         user_id_query: Uuid,
         conn: &PgConnection,
@@ -121,6 +122,7 @@ impl AuditLog {
             })
             .map_err(From::from)
     }
+
     pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::audit_logs::dsl::*;
 
@@ -132,6 +134,7 @@ impl AuditLog {
             })
             .map_err(From::from)
     }
+
     pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<AuditLog, DieselError> {
         use crate::schema::audit_logs::dsl::*;
 

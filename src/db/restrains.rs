@@ -37,6 +37,7 @@ impl Restrain {
             })
             .map_err(From::from)
     }
+
     pub fn by_user_id(user_id_query: Uuid, conn: &PgConnection) -> Result<Restrain, DieselError> {
         use crate::schema::restrains::dsl::*;
 
@@ -49,6 +50,7 @@ impl Restrain {
             })
             .map_err(From::from)
     }
+    
     pub fn list_by_channel_id(channel_id_query: Uuid, conn: &PgConnection) -> Result<Vec<Restrain>, DieselError> {
         use crate::schema::restrains::dsl::*;
 
@@ -65,6 +67,7 @@ impl Restrain {
             })
             .map_err(From::from)
     }
+
     pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::restrains::dsl::*;
 
@@ -76,6 +79,7 @@ impl Restrain {
             })
             .map_err(From::from)
     }
+
     pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<Restrain, DieselError> {
         use crate::schema::restrains::dsl::*;
 

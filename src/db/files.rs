@@ -29,6 +29,7 @@ impl File {
             })
             .map_err(From::from)
     }
+
     pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::files::dsl::*;
 
