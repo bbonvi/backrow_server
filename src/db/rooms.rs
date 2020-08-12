@@ -82,14 +82,14 @@ impl Room {
             })
             .map_err(From::from)
     }
-    pub fn by_path(path: &str, conn: &PgConnection) -> Result<Room, DieselError> {
+    pub fn by_path(path_query: &str, conn: &PgConnection) -> Result<Room, DieselError> {
         use crate::schema::rooms::dsl::*;
 
         rooms
-            .filter(path.eq(path))
+            .filter(path.eq(path_query))
             .first::<Room>(conn)
             .map_err(|err| {
-                error!("Couldn't query room by path {:?}: {}", path, err);
+                error!("Couldn't query room by path {:?}: {}", path_query, err);
                 err
             })
             .map_err(From::from)

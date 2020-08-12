@@ -3,14 +3,12 @@ use crate::schema::channels;
 use crate::schema::dm_channel_users;
 use crate::schema::dm_channels;
 use crate::schema::room_channels;
-use std::vec::Vec;
 
 use crate::diesel::prelude::*;
 use crate::diesel::*;
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use std::fmt;
 use uuid::Uuid;
 
 // Right now, there is two types of channels: DM and Room.
@@ -197,16 +195,14 @@ impl NewRoomChannel {
             self.channel_id = Some(channel.id);
 
             // create room channel
-            let room_channel = diesel::insert_into(room_channels)
+            diesel::insert_into(room_channels)
                 .values(self)
                 .get_result::<RoomChannel>(conn)
                 .map_err(|err| {
                     error!("Couldn't create room channel: {}", err);
                     err
                 })
-                .map_err(From::from);
-
-            room_channel
+                .map_err(From::from)
         })
     }
 }

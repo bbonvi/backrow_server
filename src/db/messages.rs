@@ -127,8 +127,6 @@ impl<'a> NewMessage<'a> {
         mentioned_users: Vec<User>,
         conn: &PgConnection,
     ) -> Result<(Message, Vec<MessageMention>), DieselError> {
-        use crate::schema::messages::dsl::*;
-
         let message_created = self.create(conn)?;
 
         let mut mentions: Vec<MessageMention> = Vec::with_capacity(mentioned_users.len());

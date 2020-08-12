@@ -16,7 +16,5 @@ fn main() {
 
     debug::init();
 
-    let pool = db::get_pool();
-
     println!("Hello, world!");
 }

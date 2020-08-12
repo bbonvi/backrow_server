@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use uuid::Uuid;
 
+#[allow(clippy::trivially_copy_pass_by_ref)]
 fn is_false(x: &bool) -> bool {
     !x
 }
