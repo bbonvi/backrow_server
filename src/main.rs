@@ -10,11 +10,12 @@ extern crate log;
 pub mod db;
 mod debug;
 pub mod schema;
+pub mod server;
 
 fn main() {
     dotenv().ok();
 
     debug::init();
 
-    println!("Hello, world!");
+    server::run().unwrap();
 }
