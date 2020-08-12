@@ -2,6 +2,7 @@ use diesel::prelude::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
 use dotenv::dotenv;
 
+mod audit_logs;
 mod channels;
 mod emotes;
 mod errors;
@@ -12,6 +13,7 @@ mod rooms;
 mod users;
 mod videos;
 
+pub use audit_logs::*;
 pub use channels::*;
 pub use emotes::*;
 pub use errors::*;

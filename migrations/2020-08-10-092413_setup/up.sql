@@ -188,5 +188,6 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
 
     table_name VARCHAR NOT NULL,
-    changes VARCHAR NOT NULL
+    changes VARCHAR NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
