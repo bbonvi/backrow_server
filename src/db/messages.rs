@@ -14,7 +14,7 @@ use uuid::Uuid;
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Message {
-    pub id: Uuid,
+    pub id: i32,
     pub channel_id: Uuid,
     pub user_id: Uuid,
     pub content: String,
@@ -166,7 +166,7 @@ impl<'a> NewMessage<'a> {
 pub struct MessageMention {
     pub id: i32,
     pub user_id: Uuid,
-    pub message_id: Uuid,
+    pub message_id: i32,
 }
 
 impl MessageMention {
@@ -189,7 +189,7 @@ impl MessageMention {
 #[serde(rename_all = "camelCase")]
 pub struct NewMessageMention {
     pub user_id: Uuid,
-    pub message_id: Uuid,
+    pub message_id: i32,
 }
 impl NewMessageMention {
     pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<MessageMention, DieselError> {
