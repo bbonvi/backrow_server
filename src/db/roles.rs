@@ -182,12 +182,13 @@ pub struct NewRole<'a> {
 }
 
 impl<'a> Default for NewRole<'a> {
-    /// You should always explicitly specify `room_id`, never use default value
+    /// `room_id` and `name` should always be specified.
+    /// Never use default values them!
     fn default() -> NewRole<'a> {
         NewRole {
-            // default room_id should NOT be used!
-            room_id: Uuid::new_v4(),
+            room_id: Uuid::default(),
             name: "",
+
             color: None,
             is_default: false,
             position: 999,
@@ -224,7 +225,7 @@ impl<'a> Default for NewRole<'a> {
             player_pause: -1,
             player_resume: -1,
             player_rewind: -1,
-            
+
             subtitles_file: -1,
             subtitles_embed: -1,
 
