@@ -19,7 +19,7 @@ pub struct Restrain {
     pub fingerprint: Option<String>,
     pub channel_id: Option<Uuid>,
     pub is_global: bool,
-    /// `is_ban` indicate whether restrain is ban or timeout
+    /// `is_ban` indicates whether restrain is ban or timeout
     pub is_ban: bool,
     pub ending_at: Option<NaiveDateTime>,
     pub created_at: NaiveDateTime,
@@ -43,7 +43,7 @@ pub struct NewRestrain {
     pub fingerprint: Option<String>,
     pub channel_id: Option<Uuid>,
     pub is_global: bool,
-    /// `is_ban` indicate whether restrain is ban or timeout
+    /// `is_ban` indicates whether restrain is ban or timeout
     pub is_ban: bool,
     pub ending_at: Option<NaiveDateTime>,
 }
