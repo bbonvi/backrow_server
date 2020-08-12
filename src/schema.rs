@@ -6,6 +6,7 @@ table! {
         room_id -> Uuid,
         table_name -> Varchar,
         changes -> Varchar,
+        created_at -> Timestamp,
     }
 }
 
@@ -78,7 +79,7 @@ table! {
         user_id -> Uuid,
         ip -> Nullable<Varchar>,
         fingerprint -> Nullable<Varchar>,
-        channels_id -> Nullable<Uuid>,
+        channel_id -> Nullable<Uuid>,
         is_global -> Bool,
         is_ban -> Bool,
         ending_at -> Nullable<Timestamp>,
@@ -207,7 +208,7 @@ joinable!(message_mentions -> messages (message_id));
 joinable!(message_mentions -> users (user_id));
 joinable!(messages -> channels (channel_id));
 joinable!(messages -> users (user_id));
-joinable!(restrains -> channels (channels_id));
+joinable!(restrains -> channels (channel_id));
 joinable!(restrains -> users (user_id));
 joinable!(roles -> rooms (room_id));
 joinable!(room_channels -> channels (channel_id));

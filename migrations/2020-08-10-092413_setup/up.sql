@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS restrains (
 
     ip VARCHAR,
     fingerprint VARCHAR,
-    channels_id UUID REFERENCES channels(id) ON DELETE CASCADE,
+    channel_id UUID REFERENCES channels(id) ON DELETE CASCADE,
 
     is_global BOOLEAN NOT NULL DEFAULT 'f',
     is_ban BOOLEAN NOT NULL DEFAULT 'f',

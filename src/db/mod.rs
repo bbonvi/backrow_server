@@ -12,9 +12,11 @@ mod roles;
 mod rooms;
 mod users;
 mod videos;
+mod restrains;
 
 pub use audit_logs::*;
 pub use channels::*;
+pub use restrains::*;
 pub use emotes::*;
 pub use errors::*;
 pub use files::*;
