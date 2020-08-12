@@ -137,6 +137,7 @@ impl RoomChannel {
             })
             .map_err(From::from)
     }
+
     pub fn by_id(room_channel_id: Uuid, conn: &PgConnection) -> Result<RoomChannel, DieselError> {
         use crate::schema::room_channels::dsl::*;
 
@@ -164,6 +165,7 @@ impl RoomChannel {
             })
             .map_err(From::from)
     }
+
     pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<RoomChannel, DieselError> {
         use crate::schema::room_channels::dsl::*;
 
