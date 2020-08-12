@@ -2,6 +2,7 @@ use super::DieselError;
 use crate::schema::message_mentions;
 use crate::schema::messages;
 
+use crate::db::User;
 use crate::diesel::prelude::*;
 use crate::diesel::*;
 use std::vec::Vec;
@@ -110,6 +111,9 @@ pub struct NewMessage<'a> {
     pub content: &'a str,
 }
 
+type MessageWithMentions = (Message, Vec<MessageMention>);
+type NewMessageWithMentions<'a> = (NewMessage<'a>, Vec<User>);
+
 impl<'a> fmt::Display for NewMessage<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let new_message = serde_json::to_string(self).unwrap();
@@ -118,33 +122,27 @@ impl<'a> fmt::Display for NewMessage<'a> {
 }
 
 impl<'a> NewMessage<'a> {
-    pub fn create_with_mentions(
+    fn create_with_mentions(
         self: &'_ Self,
-        mentioned_users: Vec<crate::db::User>,
+        mentioned_users: Vec<User>,
         conn: &PgConnection,
-    ) -> Result<Message, DieselError> {
+    ) -> Result<(Message, Vec<MessageMention>), DieselError> {
         use crate::schema::messages::dsl::*;
 
-        // we need transaction for atomicity and perfomant batch insert
-        conn.transaction(|| {
-            let created_message = diesel::insert_into(messages)
-                .values(self)
-                .get_result::<Message>(conn)
-                .map_err(|err| {
-                    error!("Couldn't create message {}: {}", self, err);
-                    err
-                })?;
+        let message_created = self.create(conn)?;
 
-            for user in mentioned_users {
-                NewMessageMention {
-                    user_id: user.id,
-                    message_id: created_message.id,
-                }
-                .create(conn)?;
+        let mut mentions: Vec<MessageMention> = Vec::with_capacity(mentioned_users.len());
+        for user in mentioned_users {
+            let mention_created = NewMessageMention {
+                user_id: user.id,
+                message_id: message_created.id,
             }
+            .create(conn)?;
 
-            Ok(created_message)
-        })
+            mentions.push(mention_created);
+        }
+
+        Ok((message_created, mentions))
     }
     pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<Message, DieselError> {
         use crate::schema::messages::dsl::*;
@@ -153,10 +151,27 @@ impl<'a> NewMessage<'a> {
             .values(self)
             .get_result::<Message>(conn)
             .map_err(|err| {
-                error!("Couldn't create message {}: {}", self, err);
+                error!("Couldn't create message {:?}: {}", self, err);
                 err
             })
             .map_err(From::from)
+    }
+
+    pub fn bulk_create_with_mentions(
+        new_messages: Vec<NewMessageWithMentions>,
+        conn: &PgConnection,
+    ) -> Result<Vec<MessageWithMentions>, DieselError> {
+        // insert all messages and mentions in a single transaction
+        // for performance benefits
+        conn.transaction(|| {
+            let mut result: Vec<MessageWithMentions> = Vec::with_capacity(new_messages.len());
+            for (msg, mentions) in new_messages {
+                let (msg_created, mentions_created) = msg.create_with_mentions(mentions, conn)?;
+
+                result.push((msg_created, mentions_created));
+            }
+            Ok(result)
+        })
     }
 }
 

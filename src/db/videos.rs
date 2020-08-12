@@ -121,9 +121,7 @@ impl NewVideo {
         new_videos: Vec<NewVideo>,
         conn: &PgConnection,
     ) -> Result<Vec<Video>, DieselError> {
-        let mut new_videos_iterator = new_videos.iter();
-
-        // Use transction for perfomance reasons.
+        // Use transction for performance reasons.
         conn.transaction(|| {
             let mut result: Vec<Video> = Vec::new();
             for new_video in new_videos {

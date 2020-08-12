@@ -58,13 +58,13 @@ table! {
     message_mentions (id) {
         id -> Int4,
         user_id -> Uuid,
-        message_id -> Uuid,
+        message_id -> Int4,
     }
 }
 
 table! {
     messages (id) {
-        id -> Uuid,
+        id -> Int4,
         channel_id -> Uuid,
         user_id -> Uuid,
         content -> Varchar,
