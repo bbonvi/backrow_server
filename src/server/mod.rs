@@ -20,11 +20,14 @@ pub async fn run() -> std::io::Result<()> {
     let pool = db::get_pool();
     let addr = env::APP_ADDR.clone();
 
+    const YEAR_IN_SECS: i64 = 60 * 60 * 24 * 365;
+
     HttpServer::new(move || {
         App::new()
             .wrap(IdentityService::new(
                 CookieIdentityPolicy::new(&[0; 32])
                     .name("auth-cookie")
+                    .max_age(YEAR_IN_SECS)
                     .secure(true),
             ))
             .data(pool.clone())
