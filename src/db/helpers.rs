@@ -7,16 +7,15 @@ pub fn is_unique_constraint_error(err: &DieselError) -> bool {
     if let DieselError::Error(db_err) = err {
         if let Error::DatabaseError(db_err, _) = db_err {
             if let DatabaseErrorKind::UniqueViolation = db_err {
-                return true
+                return true;
             }
         }
     }
 
     if let DieselError::DatabaseErrorKind(db_err) = err {
         if let DatabaseErrorKind::UniqueViolation = db_err {
-            return true
+            return true;
         }
     }
     false
 }
-

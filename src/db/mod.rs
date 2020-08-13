@@ -7,13 +7,13 @@ mod channels;
 mod emotes;
 mod errors;
 mod files;
+pub mod helpers;
 mod messages;
 mod restrains;
 mod roles;
 mod rooms;
 mod users;
 mod videos;
-pub mod helpers;
 
 pub use audit_logs::*;
 pub use channels::*;

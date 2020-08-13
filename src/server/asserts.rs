@@ -1,8 +1,6 @@
 use crate::env;
-use regex::Regex;
 use crate::vars;
-
-
+use regex::Regex;
 
 pub fn valid_origin(req: &actix_web::HttpRequest) -> bool {
     let app_origin = env::APP_ORIGIN.clone();
@@ -13,7 +11,7 @@ pub fn valid_origin(req: &actix_web::HttpRequest) -> bool {
 pub fn valid_username(username: String) -> bool {
     let char_count = username.chars().count();
     if char_count < vars::USERNAME_MIN_LEN || char_count > vars::USERNAME_MAX_LEN {
-        return false
+        return false;
     }
 
     let re = Regex::new(r"^[a-zA-Z0-9_]+$").unwrap();
@@ -28,7 +26,7 @@ pub fn valid_nickname(nickname: String) -> bool {
 pub fn valid_email(email: String) -> bool {
     let char_count = email.chars().count();
     if char_count < 4 || char_count > 40 {
-        return false
+        return false;
     }
 
     let re = Regex::new(r#"^[a-zA-Z0-9!#$%&'*+-/=?^_`{|}~."\(\),:;<>@\[\]]+$""#).unwrap();

@@ -1,10 +1,10 @@
 extern crate num_cpus;
 
 use crate::db;
+use crate::env;
+use actix_identity::{CookieIdentityPolicy, Identity, IdentityService};
 use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpResponse, HttpServer};
-// use std::env;
-use crate::env;
 
 pub mod asserts;
 pub mod errors;
@@ -22,6 +22,11 @@ pub async fn run() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
+            .wrap(IdentityService::new(
+                CookieIdentityPolicy::new(&[0; 32])
+                    .name("auth-cookie")
+                    .secure(true),
+            ))
             .data(pool.clone())
             .wrap(Logger::new(LOGGER_FORMAT))
             .service(
@@ -37,8 +42,10 @@ pub async fn run() -> std::io::Result<()> {
                     )
                     .service(
                         web::scope("/users")
-                            .route("/signin", web::post().to(users::sign_up))
+                            .route("", web::get().to(users::get))
+                            .route("/signin", web::post().to(users::sign_in))
                             .route("/signup", web::post().to(users::sign_up))
+                            .route("/logout", web::post().to(users::log_out)),
                     ),
             )
     })
