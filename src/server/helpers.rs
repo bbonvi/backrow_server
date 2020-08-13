@@ -6,4 +6,3 @@ pub fn get_origin(req: &actix_web::HttpRequest) -> String {
             .unwrap_or_default(),
     )
 }
-

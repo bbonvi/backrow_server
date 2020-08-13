@@ -1,3 +1,4 @@
+use super::asserts;
 use crate::db;
 use crate::env;
 use crate::server::errors::ServerError;
@@ -5,7 +6,6 @@ use actix::{Actor, StreamHandler};
 use actix_web::{web, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
 use serde::Deserialize;
-use super::asserts;
 
 struct WebSocket;
 

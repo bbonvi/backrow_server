@@ -4,15 +4,10 @@ use actix_web::{web, App, HttpResponse, HttpServer};
 // use std::env;
 use crate::env;
 
+pub mod asserts;
 pub mod errors;
 pub mod helpers;
-pub mod asserts;
 mod ws;
-
-// /api/rooms
-// /api/rooms/kekw
-// /api/rooms/kekw/ws
-// /api/rooms/kekw/ban/0001
 
 /// "first line of request", "ip", "status code", "user-agent"
 const LOGGER_FORMAT: &str = "\"%r\", \"%a\", \"%s\", \"%{User-Agent}i\"";
@@ -26,12 +21,22 @@ pub async fn run() -> std::io::Result<()> {
         App::new()
             .data(pool.clone())
             .wrap(Logger::new(LOGGER_FORMAT))
-            // blank route for dev purposes
-            .service(web::scope("/blank").route("", web::get().to(|| HttpResponse::Ok())))
             .service(
-                web::scope("/api").service(
-                    web::scope("/rooms/{room_path}").route("/ws", web::get().to(ws::index)),
-                ),
+                web::scope("/api")
+                    .service(
+                        web::scope("/rooms")
+                            .service(
+                                web::scope("/{room_path}")
+                                    .route("/ws", web::get().to(ws::index))
+                                    .route("/action", web::get().to(HttpResponse::Ok)),
+                            )
+                            .route("", web::get().to(HttpResponse::Ok)),
+                    )
+                    .service(
+                        web::scope("/users")
+                            .route("/signin", web::get().to(HttpResponse::Ok))
+                            .route("/signup", web::get().to(HttpResponse::Ok)),
+                    ),
             )
     })
     .bind(addr)?

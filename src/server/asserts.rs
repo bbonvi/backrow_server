@@ -5,4 +5,3 @@ pub fn valid_origin(req: &actix_web::HttpRequest) -> bool {
     let origin = super::helpers::get_origin(&req);
     origin.contains(&app_origin)
 }
-
