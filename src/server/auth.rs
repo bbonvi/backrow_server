@@ -39,13 +39,6 @@ pub async fn get_discord_user(code: String) -> Result<DiscordUser, Error> {
 
     let client = reqwest::Client::new();
 
-    // let r = client
-    //     .post(token_url)
-    //     .form(&params)
-    //     .send()
-    //     .await?;
-    // info!("{:?}", r.text().await);
-
     // Auhorize `code`
     let res = client
         .post(token_url)
