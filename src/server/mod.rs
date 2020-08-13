@@ -1,3 +1,5 @@
+extern crate num_cpus;
+
 use crate::db;
 use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpResponse, HttpServer};
@@ -7,6 +9,7 @@ use crate::env;
 pub mod asserts;
 pub mod errors;
 pub mod helpers;
+mod users;
 mod ws;
 
 /// "first line of request", "ip", "status code", "user-agent"
@@ -34,11 +37,12 @@ pub async fn run() -> std::io::Result<()> {
                     )
                     .service(
                         web::scope("/users")
-                            .route("/signin", web::get().to(HttpResponse::Ok))
-                            .route("/signup", web::get().to(HttpResponse::Ok)),
+                            .route("/signin", web::post().to(users::sign_up))
+                            .route("/signup", web::post().to(users::sign_up))
                     ),
             )
     })
+    .workers(num_cpus::get() * 2)
     .bind(addr)?
     .run()
     .await

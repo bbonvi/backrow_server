@@ -12,6 +12,8 @@ pub enum ResponseError {
     InternalError,
     #[fail(display = "Bad request")]
     BadRequest,
+    #[fail(display = "{}", _0)]
+    BadRequestMessage(&'static str),
     #[fail(display = "Not found")]
     NotFound,
     #[fail(display = "Timeout")]
@@ -33,6 +35,7 @@ impl error::ResponseError for ResponseError {
         match *self {
             ResponseError::InternalError => StatusCode::INTERNAL_SERVER_ERROR,
             ResponseError::BadRequest => StatusCode::BAD_REQUEST,
+            ResponseError::BadRequestMessage { .. } => StatusCode::BAD_REQUEST,
             ResponseError::NotFound => StatusCode::NOT_FOUND,
             ResponseError::Timeout => StatusCode::GATEWAY_TIMEOUT,
             ResponseError::ValidationError { .. } => StatusCode::BAD_REQUEST,

@@ -32,15 +32,17 @@ pub struct User {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub color: Option<String>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing)]
     pub file_id: Option<i32>,
 
     #[serde(skip_serializing_if = "is_false")]
     pub is_admin: bool,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    // TODO: implement
+    #[serde(skip_serializing)]
     pub last_login: Option<NaiveDateTime>,
 
+    #[serde(skip_serializing)]
     pub created_at: NaiveDateTime,
 }
 

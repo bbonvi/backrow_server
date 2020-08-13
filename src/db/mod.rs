@@ -13,6 +13,7 @@ mod roles;
 mod rooms;
 mod users;
 mod videos;
+pub mod helpers;
 
 pub use audit_logs::*;
 pub use channels::*;
