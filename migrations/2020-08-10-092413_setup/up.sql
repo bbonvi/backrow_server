@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS files (
 
 CREATE TABLE IF NOT EXISTS users (
     id UUID NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
+    discord_id VARCHAR UNIQUE,
     username VARCHAR NOT NULL UNIQUE,
     nickname VARCHAR,
     email VARCHAR UNIQUE,

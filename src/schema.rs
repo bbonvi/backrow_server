@@ -169,6 +169,7 @@ table! {
 table! {
     users (id) {
         id -> Uuid,
+        discord_id -> Nullable<Varchar>,
         username -> Varchar,
         nickname -> Nullable<Varchar>,
         email -> Nullable<Varchar>,

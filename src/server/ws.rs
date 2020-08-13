@@ -2,10 +2,10 @@ use super::asserts;
 use crate::db;
 use crate::server::errors::ResponseError;
 use actix::{Actor, StreamHandler};
+use actix_identity::Identity;
 use actix_web::{web, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
 use serde::Deserialize;
-use actix_identity::Identity;
 
 struct WebSocket;
 
@@ -40,7 +40,7 @@ pub async fn index(
         #[cfg(not(debug_assertions))]
         return Err(ResponseError::AccessError("Bad origin"));
     }
-    
+
     let conn = pool.get().unwrap();
     let room_path = info.room_path.clone();
     let _room = db::Room::by_path(&room_path, &conn)?;

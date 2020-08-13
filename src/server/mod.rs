@@ -7,6 +7,7 @@ use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpResponse, HttpServer};
 
 pub mod asserts;
+pub mod auth;
 pub mod errors;
 pub mod helpers;
 mod users;
@@ -47,6 +48,7 @@ pub async fn run() -> std::io::Result<()> {
                         web::scope("/users")
                             .route("", web::get().to(users::get))
                             .route("/signin", web::post().to(users::sign_in))
+                            .route("/signin/discord", web::get().to(users::sign_in_discord))
                             .route("/signup", web::post().to(users::sign_up))
                             .route("/logout", web::post().to(users::log_out)),
                     ),

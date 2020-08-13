@@ -19,3 +19,13 @@ pub fn is_unique_constraint_error(err: &DieselError) -> bool {
     }
     false
 }
+
+pub fn is_not_found_error(err: &DieselError) -> bool {
+    if let DieselError::Error(db_error) = err {
+        if let Error::NotFound = db_error {
+            return true;
+        }
+    }
+
+    false
+}

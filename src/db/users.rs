@@ -18,6 +18,7 @@ fn is_false(x: &bool) -> bool {
 #[serde(rename_all = "camelCase")]
 pub struct User {
     pub id: Uuid,
+    pub discord_id: Option<String>,
     pub username: String,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -55,6 +56,24 @@ impl User {
             .first::<User>(conn)
             .map_err(|err| {
                 error!("Couldn't query user by id {:?}: {}", user_id, err);
+                err
+            })
+            .map_err(From::from)
+    }
+    pub fn by_discord_id(
+        discord_id_query: String,
+        conn: &PgConnection,
+    ) -> Result<User, DieselError> {
+        use crate::schema::users::dsl::*;
+
+        users
+            .filter(discord_id.eq(discord_id_query.clone()))
+            .first::<User>(conn)
+            .map_err(|err| {
+                error!(
+                    "Couldn't query user by discord id {:?}: {}",
+                    discord_id_query, err
+                );
                 err
             })
             .map_err(From::from)
@@ -105,6 +124,7 @@ impl User {
 #[serde(rename_all = "camelCase")]
 pub struct NewUser<'a> {
     pub username: &'a str,
+    pub discord_id: Option<String>,
     pub nickname: Option<String>,
     pub email: Option<String>,
     #[serde(skip_serializing)]
@@ -117,6 +137,7 @@ impl<'a> Default for NewUser<'a> {
     fn default() -> Self {
         Self {
             username: "",
+            discord_id: None,
             nickname: None,
             email: None,
             password: None,

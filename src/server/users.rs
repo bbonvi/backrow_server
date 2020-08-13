@@ -1,11 +1,11 @@
 extern crate bcrypt;
-use bcrypt::{hash, verify, DEFAULT_COST};
+use bcrypt::{hash, verify};
 
 use super::asserts;
 use crate::db;
 use crate::server::errors::ResponseError;
 use actix_identity::Identity;
-use actix_web::{web, HttpRequest, HttpResponse};
+use actix_web::{web, HttpResponse};
 use serde::Deserialize;
 use uuid::Uuid;
 
@@ -29,6 +29,49 @@ pub async fn get(pool: web::Data<db::DbPool>, id: Identity) -> Result<HttpRespon
 pub async fn log_out(id: Identity) -> Result<HttpResponse, ResponseError> {
     id.forget();
     Ok(HttpResponse::Ok().finish())
+}
+
+#[derive(Deserialize, Debug)]
+pub struct DiscordRedirect {
+    code: String,
+}
+
+pub async fn sign_in_discord(
+    pool: web::Data<db::DbPool>,
+    info: web::Query<DiscordRedirect>,
+    id: Identity,
+) -> Result<HttpResponse, ResponseError> {
+    let conn = pool.get().unwrap();
+
+    // let user = db::User::by_name(&info.username.clone(), &conn)?;
+
+    let discord_user = super::auth::get_discord_user(info.code.clone())
+        .await
+        .map_err(|err| {
+            error!("{}", err);
+            ResponseError::InternalError
+        })?;
+
+    let user = match db::User::by_discord_id(discord_user.id.to_owned(), &conn) {
+        Ok(user) => user,
+        Err(user_err) => {
+            if !db::helpers::is_not_found_error(&user_err) {
+                return Err(ResponseError::InternalError);
+            }
+            // We use discord ID as `username` to avoid validation troubles.
+            // And set discord name to `nickname` instead, so user couldn't see numbers in his name.
+            db::NewUser {
+                username: &discord_user.id.to_owned(),
+                nickname: Some(discord_user.username),
+                discord_id: Some(discord_user.id.to_owned()),
+                ..Default::default()
+            }
+            .create(&conn)?
+        }
+    };
+
+    id.remember(user.id.to_string());
+    Ok(HttpResponse::Ok().json(user))
 }
 
 pub async fn sign_in(
