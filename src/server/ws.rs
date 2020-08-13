@@ -1,7 +1,6 @@
 use super::asserts;
 use crate::db;
-use crate::env;
-use crate::server::errors::ServerError;
+use crate::server::errors::ResponseError;
 use actix::{Actor, StreamHandler};
 use actix_web::{web, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
@@ -34,10 +33,10 @@ pub async fn index(
     pool: web::Data<db::DbPool>,
     stream: web::Payload,
     info: web::Path<Info>,
-) -> Result<HttpResponse, ServerError> {
+) -> Result<HttpResponse, ResponseError> {
     if !asserts::valid_origin(&req) {
         #[cfg(not(debug_assertions))]
-        return Err(ServerError::AccessError("Bad origin"));
+        return Err(ResponseError::AccessError("Bad origin"));
     }
 
     let conn = pool.get().unwrap();

@@ -7,7 +7,7 @@ use diesel::result::Error as QueryError;
 use failure::Fail;
 
 #[derive(Fail, Debug)]
-pub enum ServerError {
+pub enum ResponseError {
     #[fail(display = "An internal error occurred. Please try again later")]
     InternalError,
     #[fail(display = "Bad request")]
@@ -22,7 +22,7 @@ pub enum ServerError {
     AccessError(&'static str),
 }
 
-impl error::ResponseError for ServerError {
+impl error::ResponseError for ResponseError {
     fn error_response(&self) -> HttpResponse {
         ResponseBuilder::new(self.status_code())
             .set_header(header::CONTENT_TYPE, "text/html; charset=utf-8")
@@ -31,31 +31,31 @@ impl error::ResponseError for ServerError {
 
     fn status_code(&self) -> StatusCode {
         match *self {
-            ServerError::InternalError => StatusCode::INTERNAL_SERVER_ERROR,
-            ServerError::BadRequest => StatusCode::BAD_REQUEST,
-            ServerError::NotFound => StatusCode::NOT_FOUND,
-            ServerError::Timeout => StatusCode::GATEWAY_TIMEOUT,
-            ServerError::ValidationError { .. } => StatusCode::BAD_REQUEST,
-            ServerError::AccessError { .. } => StatusCode::UNAUTHORIZED,
+            ResponseError::InternalError => StatusCode::INTERNAL_SERVER_ERROR,
+            ResponseError::BadRequest => StatusCode::BAD_REQUEST,
+            ResponseError::NotFound => StatusCode::NOT_FOUND,
+            ResponseError::Timeout => StatusCode::GATEWAY_TIMEOUT,
+            ResponseError::ValidationError { .. } => StatusCode::BAD_REQUEST,
+            ResponseError::AccessError { .. } => StatusCode::UNAUTHORIZED,
         }
     }
 }
 
-impl From<DieselError> for ServerError {
-    fn from(err: DieselError) -> ServerError {
+impl From<DieselError> for ResponseError {
+    fn from(err: DieselError) -> ResponseError {
         match err {
-            DieselError::ConnectionError(_) => ServerError::InternalError,
-            DieselError::DatabaseErrorKind(_) => ServerError::InternalError,
+            DieselError::ConnectionError(_) => ResponseError::InternalError,
+            DieselError::DatabaseErrorKind(_) => ResponseError::InternalError,
             DieselError::Error(query_err) => match query_err {
-                QueryError::NotFound => ServerError::NotFound,
-                _ => ServerError::InternalError,
+                QueryError::NotFound => ResponseError::NotFound,
+                _ => ResponseError::InternalError,
             },
         }
     }
 }
 
-impl From<ActixError> for ServerError {
-    fn from(_: ActixError) -> ServerError {
-        ServerError::InternalError
+impl From<ActixError> for ResponseError {
+    fn from(_: ActixError) -> ResponseError {
+        ResponseError::InternalError
     }
 }
