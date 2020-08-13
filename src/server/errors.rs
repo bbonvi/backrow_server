@@ -8,14 +8,18 @@ use failure::Fail;
 
 #[derive(Fail, Debug)]
 pub enum ServerError {
-    #[fail(display = "internal error")]
+    #[fail(display = "An internal error occurred. Please try again later")]
     InternalError,
-    #[fail(display = "bad request")]
+    #[fail(display = "Bad request")]
     BadRequest,
-    #[fail(display = "not found")]
+    #[fail(display = "Not found")]
     NotFound,
-    #[fail(display = "timeout")]
+    #[fail(display = "Timeout")]
     Timeout,
+    #[fail(display = "Validation error on field: {}", field)]
+    ValidationError { field: String },
+    #[fail(display = "Access error. {}", _0)]
+    AccessError(String),
 }
 
 impl error::ResponseError for ServerError {
@@ -31,6 +35,8 @@ impl error::ResponseError for ServerError {
             ServerError::BadRequest => StatusCode::BAD_REQUEST,
             ServerError::NotFound => StatusCode::NOT_FOUND,
             ServerError::Timeout => StatusCode::GATEWAY_TIMEOUT,
+            ServerError::ValidationError { .. } => StatusCode::BAD_REQUEST,
+            ServerError::AccessError { .. } => StatusCode::UNAUTHORIZED,
         }
     }
 }

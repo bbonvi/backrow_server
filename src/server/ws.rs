@@ -37,14 +37,11 @@ pub async fn index(
 ) -> Result<HttpResponse, ServerError> {
     let app_origin = env::APP_ORIGIN.clone();
 
-    let origin = req
-        .headers()
-        .get("origin")
-        .map(|o| o.to_str().unwrap_or_default())
-        .unwrap_or_default();
+    let origin = super::helpers::get_origin(&req);
 
-    if String::from(origin).contains(&app_origin) {
-        return Ok(HttpResponse::Forbidden().finish());
+    if !origin.contains(&app_origin) {
+        #[cfg(not(debug_assertions))]
+        return Err(ServerError::AccessError(String::from("Bad origin")));
     }
 
     let conn = pool.get().unwrap();

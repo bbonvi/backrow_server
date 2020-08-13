@@ -5,6 +5,7 @@ use actix_web::{web, App, HttpResponse, HttpServer};
 use crate::env;
 
 pub mod errors;
+pub mod helpers;
 mod ws;
 
 // /api/rooms
