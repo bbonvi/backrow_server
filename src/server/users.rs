@@ -43,8 +43,6 @@ pub async fn sign_in_discord(
 ) -> Result<HttpResponse, ResponseError> {
     let conn = pool.get().unwrap();
 
-    // let user = db::User::by_name(&info.username.clone(), &conn)?;
-
     let discord_user = super::auth::get_discord_user(info.code.clone())
         .await
         .map_err(|err| {
