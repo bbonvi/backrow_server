@@ -6,6 +6,7 @@ use crate::env;
 
 pub mod errors;
 pub mod helpers;
+pub mod asserts;
 mod ws;
 
 // /api/rooms

@@ -2,7 +2,7 @@ use crate::db::DieselError;
 use actix_http::ResponseBuilder;
 use actix_web::Error as ActixError;
 use actix_web::{error, http::header, http::StatusCode, HttpResponse};
-use diesel::result::{DatabaseErrorKind, Error as QueryError};
+use diesel::result::Error as QueryError;
 
 use failure::Fail;
 
@@ -17,9 +17,9 @@ pub enum ServerError {
     #[fail(display = "Timeout")]
     Timeout,
     #[fail(display = "Validation error on field: {}", field)]
-    ValidationError { field: String },
+    ValidationError { field: &'static str },
     #[fail(display = "Access error. {}", _0)]
-    AccessError(String),
+    AccessError(&'static str),
 }
 
 impl error::ResponseError for ServerError {

@@ -2,10 +2,10 @@ use crate::db;
 use crate::env;
 use crate::server::errors::ServerError;
 use actix::{Actor, StreamHandler};
-use actix_web::{web, App, Error, HttpRequest, HttpResponse, HttpServer};
+use actix_web::{web, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
 use serde::Deserialize;
-use uuid::Uuid;
+use super::asserts;
 
 struct WebSocket;
 
@@ -35,22 +35,14 @@ pub async fn index(
     stream: web::Payload,
     info: web::Path<Info>,
 ) -> Result<HttpResponse, ServerError> {
-    let app_origin = env::APP_ORIGIN.clone();
-
-    let origin = super::helpers::get_origin(&req);
-
-    if !origin.contains(&app_origin) {
+    if !asserts::valid_origin(&req) {
         #[cfg(not(debug_assertions))]
-        return Err(ServerError::AccessError(String::from("Bad origin")));
+        return Err(ServerError::AccessError("Bad origin"));
     }
 
     let conn = pool.get().unwrap();
-
-    debug!("{:?}", origin);
     let room_path = info.room_path.clone();
-
-    let room = db::Room::by_path(&room_path, &conn)?;
-    debug!("{:?}", room);
+    let _room = db::Room::by_path(&room_path, &conn)?;
 
     ws::start(WebSocket {}, &req, stream).map_err(From::from)
 }
