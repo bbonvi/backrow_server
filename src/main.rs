@@ -9,6 +9,7 @@ extern crate log;
 
 pub mod db;
 mod debug;
+pub mod env;
 pub mod schema;
 pub mod server;
 

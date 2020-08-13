@@ -149,7 +149,6 @@ impl AuditLog {
     }
 }
 
-
 #[derive(Insertable, AsChangeset, AsExpression, Debug, Associations, Deserialize, Serialize)]
 #[table_name = "audit_logs"]
 // We only need camelCase for consistent debug output

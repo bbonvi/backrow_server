@@ -45,13 +45,19 @@ impl Restrain {
             .filter(user_id.eq(user_id_query))
             .first::<Restrain>(conn)
             .map_err(|err| {
-                error!("Couldn't query restrain by user_id {:?}: {}", user_id_query, err);
+                error!(
+                    "Couldn't query restrain by user_id {:?}: {}",
+                    user_id_query, err
+                );
                 err
             })
             .map_err(From::from)
     }
-    
-    pub fn list_by_channel_id(channel_id_query: Uuid, conn: &PgConnection) -> Result<Vec<Restrain>, DieselError> {
+
+    pub fn list_by_channel_id(
+        channel_id_query: Uuid,
+        conn: &PgConnection,
+    ) -> Result<Vec<Restrain>, DieselError> {
         use crate::schema::restrains::dsl::*;
 
         // TODO: pagination
@@ -62,7 +68,10 @@ impl Restrain {
             .limit(LIMIT)
             .load::<Restrain>(conn)
             .map_err(|err| {
-                error!("Couldn't query restrains by channel_id {:?}: {}", channel_id_query, err);
+                error!(
+                    "Couldn't query restrains by channel_id {:?}: {}",
+                    channel_id_query, err
+                );
                 err
             })
             .map_err(From::from)

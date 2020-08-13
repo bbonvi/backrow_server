@@ -118,4 +118,3 @@ impl<'a> NewEmote<'a> {
             .map_err(From::from)
     }
 }
-

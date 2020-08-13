@@ -87,7 +87,6 @@ impl Room {
     }
 }
 
-
 #[derive(Insertable, AsChangeset, AsExpression, Debug, Associations, Deserialize, Serialize)]
 #[table_name = "rooms"]
 // We only need camelCase for consistent debug output

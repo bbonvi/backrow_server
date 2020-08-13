@@ -97,7 +97,6 @@ impl User {
     }
 }
 
-
 #[derive(AsChangeset, AsExpression, Insertable, Debug, Associations, Deserialize, Serialize)]
 #[table_name = "users"]
 // We only need camelCase for consistent debug output
