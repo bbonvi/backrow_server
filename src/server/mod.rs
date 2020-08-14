@@ -2,7 +2,8 @@ extern crate num_cpus;
 
 use crate::db;
 use crate::env;
-use actix_identity::{CookieIdentityPolicy, Identity, IdentityService};
+use actix_identity::{CookieIdentityPolicy, IdentityService};
+use actix_web::middleware::errhandlers::{ErrorHandlerResponse, ErrorHandlers};
 use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpResponse, HttpServer};
 
@@ -25,13 +26,13 @@ pub async fn run() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
+            .data(pool.clone())
             .wrap(IdentityService::new(
                 CookieIdentityPolicy::new(&[0; 32])
                     .name("auth-cookie")
                     .max_age(YEAR_IN_SECS)
                     .secure(true),
             ))
-            .data(pool.clone())
             .wrap(Logger::new(LOGGER_FORMAT))
             .service(
                 web::scope("/api")

@@ -8,12 +8,8 @@ use actix_identity::Identity;
 use actix_web::{web, HttpResponse};
 use serde::Deserialize;
 use uuid::Uuid;
-
-#[derive(Deserialize, Debug)]
-pub struct AuthForm {
-    username: String,
-    password: String,
-}
+use validator::Validate;
+use validator::ValidationError;
 
 pub async fn get(pool: web::Data<db::DbPool>, id: Identity) -> Result<HttpResponse, ResponseError> {
     let conn = pool.get().unwrap();
@@ -72,9 +68,15 @@ pub async fn sign_in_discord(
     Ok(HttpResponse::Ok().json(user))
 }
 
+#[derive(Deserialize, Debug)]
+pub struct AuthForm {
+    username: String,
+    password: String,
+}
+
 pub async fn sign_in(
     pool: web::Data<db::DbPool>,
-    form: web::Form<AuthForm>,
+    form: web::Json<AuthForm>,
     id: Identity,
 ) -> Result<HttpResponse, ResponseError> {
     let conn = pool.get().unwrap();
@@ -103,20 +105,26 @@ pub async fn sign_in(
 
 pub async fn sign_up(
     pool: web::Data<db::DbPool>,
-    form: web::Form<AuthForm>,
+    form: web::Json<AuthForm>,
     id: Identity,
 ) -> Result<HttpResponse, ResponseError> {
     let conn = pool.get().unwrap();
 
-    if db::User::by_name(&form.username, &conn).is_ok() {
+    if !asserts::valid_username(&form.username) {
         return Err(ResponseError::BadRequestMessage(
-            "User with this name already exists",
+            "Password should be 8-64 characters long.",
         ));
     }
 
-    if !asserts::valid_username(form.username.clone()) {
+    if !asserts::valid_password(&form.password) {
         return Err(ResponseError::BadRequestMessage(
             "This username is not allowed",
+        ));
+    }
+
+    if db::User::by_name(&form.username, &conn).is_ok() {
+        return Err(ResponseError::BadRequestMessage(
+            "User with this name already exists",
         ));
     }
 

@@ -1,6 +1,5 @@
 use crate::env;
 use reqwest::Error;
-use reqwest::Response;
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]

@@ -1,4 +1,8 @@
 #[macro_use]
+extern crate validator_derive;
+extern crate validator;
+
+#[macro_use]
 extern crate lazy_static;
 
 #[macro_use]
