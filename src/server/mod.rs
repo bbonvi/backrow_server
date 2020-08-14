@@ -11,6 +11,7 @@ pub mod asserts;
 pub mod auth;
 pub mod errors;
 pub mod helpers;
+mod rooms;
 mod users;
 mod ws;
 
@@ -38,6 +39,7 @@ pub async fn run() -> std::io::Result<()> {
                 web::scope("/api")
                     .service(
                         web::scope("/rooms")
+                            .route("", web::post().to(rooms::create))
                             .service(
                                 web::scope("/{room_path}")
                                     .route("/ws", web::get().to(ws::index))

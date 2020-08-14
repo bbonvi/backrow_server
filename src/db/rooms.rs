@@ -6,12 +6,12 @@ use crate::diesel::*;
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+
 
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Room {
-    pub id: Uuid,
+    pub id: i64,
     pub title: String,
     pub path: String,
 
@@ -35,7 +35,7 @@ pub struct Room {
 }
 
 impl Room {
-    pub fn by_id(room_id: Uuid, conn: &PgConnection) -> Result<Room, DieselError> {
+    pub fn by_id(room_id: i64, conn: &PgConnection) -> Result<Room, DieselError> {
         use crate::schema::rooms::dsl::*;
 
         rooms
@@ -94,8 +94,7 @@ impl Room {
 pub struct NewRoom<'a> {
     pub title: &'a str,
     pub path: &'a str,
-    pub is_public: Option<bool>,
-    pub is_deleted: Option<bool>,
+    pub is_public: bool,
 }
 
 impl<'a> Default for NewRoom<'a> {
@@ -103,8 +102,7 @@ impl<'a> Default for NewRoom<'a> {
         Self {
             title: "",
             path: "",
-            is_public: None,
-            is_deleted: None,
+            is_public: true,
         }
     }
 }

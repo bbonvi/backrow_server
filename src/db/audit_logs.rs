@@ -11,7 +11,6 @@ use std::io::Write;
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 #[derive(Debug, Copy, Clone, AsExpression, FromSqlRow, Serialize, Deserialize)]
 #[sql_type = "SmallInt"]
@@ -54,17 +53,17 @@ where
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct AuditLog {
-    pub id: i32,
+    pub id: i64,
     pub kind: AuditLogKind,
-    pub user_id: Uuid,
-    pub room_id: Uuid,
+    pub user_id: i64,
+    pub room_id: i64,
     pub table_name: String,
     pub changes: String,
     pub created_at: NaiveDateTime,
 }
 
 impl AuditLog {
-    pub fn by_id(audit_log_id: i32, conn: &PgConnection) -> Result<AuditLog, DieselError> {
+    pub fn by_id(audit_log_id: i64, conn: &PgConnection) -> Result<AuditLog, DieselError> {
         use crate::schema::audit_logs::dsl::*;
 
         audit_logs
@@ -78,7 +77,7 @@ impl AuditLog {
     }
 
     pub fn list_by_room_id(
-        room_id_query: Uuid,
+        room_id_query: i64,
         conn: &PgConnection,
     ) -> Result<Vec<AuditLog>, DieselError> {
         use crate::schema::audit_logs::dsl::*;
@@ -101,7 +100,7 @@ impl AuditLog {
     }
 
     pub fn list_by_user_id(
-        user_id_query: Uuid,
+        user_id_query: i64,
         conn: &PgConnection,
     ) -> Result<Vec<AuditLog>, DieselError> {
         use crate::schema::audit_logs::dsl::*;
@@ -155,8 +154,8 @@ impl AuditLog {
 #[serde(rename_all = "camelCase")]
 pub struct NewAuditLog<'a> {
     pub kind: AuditLogKind,
-    pub user_id: Uuid,
-    pub room_id: Uuid,
+    pub user_id: i64,
+    pub room_id: i64,
     pub table_name: &'a str,
     pub changes: &'a str,
     pub created_at: NaiveDateTime,

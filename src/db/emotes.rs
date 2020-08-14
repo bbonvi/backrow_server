@@ -6,18 +6,18 @@ use crate::diesel::*;
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+
 
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[table_name = "emotes"]
 #[serde(rename_all = "camelCase")]
 pub struct Emote {
-    pub id: Uuid,
+    pub id: i64,
     pub name: String,
 
     #[serde(skip_serializing)]
-    pub file_id: i32,
-    pub room_id: Uuid,
+    pub file_id: i64,
+    pub room_id: i64,
 
     #[serde(skip_serializing)]
     pub is_global: bool,
@@ -35,7 +35,7 @@ pub struct Emote {
 impl Emote {
     // TODO: paginations
     pub fn list_by_room_id(
-        room_id_query: Uuid,
+        room_id_query: i64,
         conn: &PgConnection,
     ) -> Result<Vec<Emote>, DieselError> {
         use crate::schema::emotes::dsl::*;
@@ -53,7 +53,7 @@ impl Emote {
             .map_err(From::from)
     }
 
-    pub fn by_id(emote_id: Uuid, conn: &PgConnection) -> Result<Emote, DieselError> {
+    pub fn by_id(emote_id: i64, conn: &PgConnection) -> Result<Emote, DieselError> {
         use crate::schema::emotes::dsl::*;
 
         emotes
@@ -98,8 +98,8 @@ impl Emote {
 #[serde(rename_all = "camelCase")]
 pub struct NewEmote<'a> {
     pub name: &'a str,
-    pub file_id: i32,
-    pub room_id: Uuid,
+    pub file_id: i64,
+    pub room_id: i64,
     pub is_global: bool,
     pub is_deleted: bool,
 }

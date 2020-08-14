@@ -9,7 +9,6 @@ use crate::diesel::*;
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 // Right now, there is two types of channels: DM and Room.
 // DM channels have a potentially infinite number of users, but usually 2.
@@ -23,7 +22,7 @@ use uuid::Uuid;
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Channel {
-    pub id: Uuid,
+    pub id: i64,
     #[serde(skip_serializing)]
     pub deleted_at: Option<NaiveDateTime>,
     #[serde(skip_serializing)]
@@ -31,7 +30,7 @@ pub struct Channel {
 }
 
 impl Channel {
-    pub fn by_id(channel_id: Uuid, conn: &PgConnection) -> Result<Channel, DieselError> {
+    pub fn by_id(channel_id: i64, conn: &PgConnection) -> Result<Channel, DieselError> {
         use crate::schema::channels::dsl::*;
 
         channels
@@ -93,8 +92,8 @@ impl NewChannel {
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[table_name = "dm_channels"]
 pub struct DmChannel {
-    pub id: Uuid,
-    pub channel_id: Uuid,
+    pub id: i64,
+    pub channel_id: i64,
 }
 
 impl DmChannel {
@@ -112,17 +111,14 @@ impl NewDmChannel {
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[table_name = "room_channels"]
 pub struct RoomChannel {
-    pub id: Uuid,
-    pub channel_id: Uuid,
-    pub room_id: Uuid,
+    pub id: i64,
+    pub channel_id: i64,
+    pub room_id: i64,
 }
 
 // TODO: pagination
 impl RoomChannel {
-    pub fn by_room_id(
-        room_id_query: Uuid,
-        conn: &PgConnection,
-    ) -> Result<RoomChannel, DieselError> {
+    pub fn by_room_id(room_id_query: i64, conn: &PgConnection) -> Result<RoomChannel, DieselError> {
         use crate::schema::room_channels::dsl::*;
 
         room_channels
@@ -138,7 +134,7 @@ impl RoomChannel {
             .map_err(From::from)
     }
 
-    pub fn by_id(room_channel_id: Uuid, conn: &PgConnection) -> Result<RoomChannel, DieselError> {
+    pub fn by_id(room_channel_id: i64, conn: &PgConnection) -> Result<RoomChannel, DieselError> {
         use crate::schema::room_channels::dsl::*;
 
         room_channels
@@ -183,8 +179,8 @@ impl RoomChannel {
 #[derive(AsChangeset, Insertable, AsExpression, Debug, Associations, Deserialize, Serialize)]
 #[table_name = "room_channels"]
 pub struct NewRoomChannel {
-    pub channel_id: Option<Uuid>,
-    pub room_id: Uuid,
+    pub channel_id: Option<i64>,
+    pub room_id: i64,
 }
 
 impl NewRoomChannel {
@@ -214,9 +210,9 @@ impl NewRoomChannel {
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[table_name = "dm_channel_users"]
 pub struct DmChannelUser {
-    pub id: Uuid,
-    pub user_id: Uuid,
-    pub dm_channel_id: Uuid,
+    pub id: i64,
+    pub user_id: i64,
+    pub dm_channel_id: i64,
 }
 
 impl DmChannelUser {

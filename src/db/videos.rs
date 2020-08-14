@@ -5,7 +5,6 @@ use crate::schema::videos;
 use crate::diesel::prelude::*;
 use crate::diesel::*;
 use std::vec::Vec;
-use uuid::Uuid;
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
@@ -13,14 +12,14 @@ use serde::{Deserialize, Serialize};
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Video {
-    pub id: i32,
-    pub room_id: Uuid,
+    pub id: i64,
+    pub room_id: i64,
 
     #[serde(skip_serializing)]
-    pub subtitles_id: Option<i32>,
+    pub subtitles_id: Option<i64>,
 
     #[serde(skip_serializing)]
-    pub file_id: Option<i32>,
+    pub file_id: Option<i64>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
@@ -39,7 +38,7 @@ pub struct Video {
 
 impl Video {
     pub fn list_by_room_id(
-        room_id_query: Uuid,
+        room_id_query: i64,
         conn: &PgConnection,
     ) -> Result<Vec<Video>, DieselError> {
         use crate::schema::videos::dsl::*;
@@ -57,7 +56,7 @@ impl Video {
             .map_err(From::from)
     }
 
-    pub fn by_id(video_id: i32, conn: &PgConnection) -> Result<Video, DieselError> {
+    pub fn by_id(video_id: i64, conn: &PgConnection) -> Result<Video, DieselError> {
         use crate::schema::videos::dsl::*;
 
         videos
@@ -71,7 +70,7 @@ impl Video {
     }
 
     pub fn delete_all_by_room_id(
-        room_id_query: Uuid,
+        room_id_query: i64,
         conn: &PgConnection,
     ) -> Result<usize, DieselError> {
         use crate::schema::videos::dsl::*;
@@ -107,9 +106,9 @@ impl Video {
 #[table_name = "videos"]
 #[serde(rename_all = "camelCase")]
 pub struct NewVideo {
-    pub room_id: Uuid,
-    pub subtitles_id: Option<i32>,
-    pub file_id: Option<i32>,
+    pub room_id: i64,
+    pub subtitles_id: Option<i64>,
+    pub file_id: Option<i64>,
     pub url: Option<String>,
     pub title: Option<String>,
     pub duration: Option<i32>,
@@ -153,13 +152,13 @@ impl NewVideo {
 #[serde(rename_all = "camelCase")]
 #[table_name = "subtitles"]
 pub struct Subtitles {
-    pub id: i32,
-    pub file_id: i32,
+    pub id: i64,
+    pub file_id: i64,
     pub url: Option<String>,
 }
 
 impl Subtitles {
-    pub fn by_id(subtitles_id: i32, conn: &PgConnection) -> Result<Subtitles, DieselError> {
+    pub fn by_id(subtitles_id: i64, conn: &PgConnection) -> Result<Subtitles, DieselError> {
         use crate::schema::subtitles::dsl::*;
 
         subtitles
@@ -188,7 +187,7 @@ impl Subtitles {
 #[table_name = "subtitles"]
 #[serde(rename_all = "camelCase")]
 pub struct NewSubtitles {
-    pub file_id: i32,
+    pub file_id: i64,
     pub url: Option<String>,
 }
 

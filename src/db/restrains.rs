@@ -6,17 +6,17 @@ use crate::diesel::*;
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+
 
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Restrain {
-    pub id: Uuid,
-    pub user_id: Uuid,
+    pub id: i64,
+    pub user_id: i64,
     pub ip: Option<String>,
     /// Probably won't be used
     pub fingerprint: Option<String>,
-    pub channel_id: Option<Uuid>,
+    pub channel_id: Option<i64>,
     pub is_global: bool,
     /// `is_ban` indicates whether restrain is ban or timeout
     pub is_ban: bool,
@@ -25,7 +25,7 @@ pub struct Restrain {
 }
 
 impl Restrain {
-    pub fn by_id(restrain_id: Uuid, conn: &PgConnection) -> Result<Restrain, DieselError> {
+    pub fn by_id(restrain_id: i64, conn: &PgConnection) -> Result<Restrain, DieselError> {
         use crate::schema::restrains::dsl::*;
 
         restrains
@@ -38,7 +38,7 @@ impl Restrain {
             .map_err(From::from)
     }
 
-    pub fn by_user_id(user_id_query: Uuid, conn: &PgConnection) -> Result<Restrain, DieselError> {
+    pub fn by_user_id(user_id_query: i64, conn: &PgConnection) -> Result<Restrain, DieselError> {
         use crate::schema::restrains::dsl::*;
 
         restrains
@@ -55,7 +55,7 @@ impl Restrain {
     }
 
     pub fn list_by_channel_id(
-        channel_id_query: Uuid,
+        channel_id_query: i64,
         conn: &PgConnection,
     ) -> Result<Vec<Restrain>, DieselError> {
         use crate::schema::restrains::dsl::*;
@@ -108,11 +108,11 @@ impl Restrain {
 // We only need camelCase for consistent debug output
 #[serde(rename_all = "camelCase")]
 pub struct NewRestrain {
-    pub user_id: Uuid,
+    pub user_id: i64,
     pub ip: Option<String>,
     /// Probably won't be used
     pub fingerprint: Option<String>,
-    pub channel_id: Option<Uuid>,
+    pub channel_id: Option<i64>,
     pub is_global: bool,
     /// `is_ban` indicates whether restrain is ban or timeout
     pub is_ban: bool,

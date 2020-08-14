@@ -7,15 +7,12 @@ use crate::server::errors::ResponseError;
 use actix_identity::Identity;
 use actix_web::{web, HttpResponse};
 use serde::Deserialize;
-use uuid::Uuid;
-use validator::Validate;
-use validator::ValidationError;
 
 pub async fn get(pool: web::Data<db::DbPool>, id: Identity) -> Result<HttpResponse, ResponseError> {
     let conn = pool.get().unwrap();
 
-    if let Some(uuid) = id.identity() {
-        let user = db::User::by_id(Uuid::parse_str(&uuid).unwrap(), &conn)?;
+    if let Some(id) = id.identity() {
+        let user = db::User::by_id(id.parse::<i64>().unwrap(), &conn)?;
         Ok(HttpResponse::Ok().json(user))
     } else {
         Ok(HttpResponse::Ok().finish())
@@ -112,13 +109,13 @@ pub async fn sign_up(
 
     if !asserts::valid_username(&form.username) {
         return Err(ResponseError::BadRequestMessage(
-            "Password should be 8-64 characters long.",
+            "This username is not allowed",
         ));
     }
 
     if !asserts::valid_password(&form.password) {
         return Err(ResponseError::BadRequestMessage(
-            "This username is not allowed",
+            "Password should be 8-64 characters long.",
         ));
     }
 

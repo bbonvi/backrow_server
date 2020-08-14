@@ -9,14 +9,14 @@ use std::vec::Vec;
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+
 
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Message {
-    pub id: i32,
-    pub channel_id: Uuid,
-    pub user_id: Uuid,
+    pub id: i64,
+    pub channel_id: i64,
+    pub user_id: i64,
     pub content: String,
     pub created_at: NaiveDateTime,
 }
@@ -24,7 +24,7 @@ pub struct Message {
 impl Message {
     // TODO: pagination
     pub fn list_by_channel_id(
-        message_channel_id: Uuid,
+        message_channel_id: i64,
         conn: &PgConnection,
     ) -> Result<Vec<Message>, DieselError> {
         const LIMIT: i64 = 20;
@@ -45,7 +45,7 @@ impl Message {
     }
 
     pub fn list_by_room_id(
-        room_id_query: Uuid,
+        room_id_query: i64,
         conn: &PgConnection,
     ) -> Result<Vec<Message>, DieselError> {
         use crate::schema::messages::dsl::*;
@@ -101,8 +101,8 @@ impl Message {
 // We only need camelCase for consistent debug output
 #[serde(rename_all = "camelCase")]
 pub struct NewMessage<'a> {
-    pub channel_id: Uuid,
-    pub user_id: Uuid,
+    pub channel_id: i64,
+    pub user_id: i64,
     pub content: &'a str,
 }
 
@@ -165,9 +165,9 @@ impl<'a> NewMessage<'a> {
 #[serde(rename_all = "camelCase")]
 #[table_name = "message_mentions"]
 pub struct MessageMention {
-    pub id: i32,
-    pub user_id: Uuid,
-    pub message_id: i32,
+    pub id: i64,
+    pub user_id: i64,
+    pub message_id: i64,
 }
 
 impl MessageMention {
@@ -189,8 +189,8 @@ impl MessageMention {
 // We only need camelCase for consistent debug output
 #[serde(rename_all = "camelCase")]
 pub struct NewMessageMention {
-    pub user_id: Uuid,
-    pub message_id: i32,
+    pub user_id: i64,
+    pub message_id: i64,
 }
 
 impl NewMessageMention {

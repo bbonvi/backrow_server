@@ -1,9 +1,9 @@
 table! {
     audit_logs (id) {
-        id -> Int4,
+        id -> Int8,
         kind -> Int2,
-        user_id -> Uuid,
-        room_id -> Uuid,
+        user_id -> Int8,
+        room_id -> Int8,
         table_name -> Varchar,
         changes -> Varchar,
         created_at -> Timestamp,
@@ -12,7 +12,7 @@ table! {
 
 table! {
     channels (id) {
-        id -> Uuid,
+        id -> Int8,
         deleted_at -> Nullable<Timestamp>,
         created_at -> Timestamp,
     }
@@ -20,25 +20,25 @@ table! {
 
 table! {
     dm_channels (id) {
-        id -> Uuid,
-        channel_id -> Uuid,
+        id -> Int8,
+        channel_id -> Int8,
     }
 }
 
 table! {
     dm_channel_users (id) {
-        id -> Uuid,
-        user_id -> Uuid,
-        dm_channel_id -> Uuid,
+        id -> Int8,
+        user_id -> Int8,
+        dm_channel_id -> Int8,
     }
 }
 
 table! {
     emotes (id) {
-        id -> Uuid,
+        id -> Int8,
         name -> Varchar,
-        file_id -> Int4,
-        room_id -> Uuid,
+        file_id -> Int8,
+        room_id -> Int8,
         is_global -> Bool,
         is_deleted -> Bool,
         deleted_at -> Nullable<Timestamp>,
@@ -48,7 +48,7 @@ table! {
 
 table! {
     files (id) {
-        id -> Int4,
+        id -> Int8,
         hash -> Varchar,
         ext -> Varchar,
         created_at -> Timestamp,
@@ -57,17 +57,17 @@ table! {
 
 table! {
     message_mentions (id) {
-        id -> Int4,
-        user_id -> Uuid,
-        message_id -> Int4,
+        id -> Int8,
+        user_id -> Int8,
+        message_id -> Int8,
     }
 }
 
 table! {
     messages (id) {
-        id -> Int4,
-        channel_id -> Uuid,
-        user_id -> Uuid,
+        id -> Int8,
+        channel_id -> Int8,
+        user_id -> Int8,
         content -> Varchar,
         created_at -> Timestamp,
     }
@@ -75,11 +75,11 @@ table! {
 
 table! {
     restrains (id) {
-        id -> Uuid,
-        user_id -> Uuid,
+        id -> Int8,
+        user_id -> Int8,
         ip -> Nullable<Varchar>,
         fingerprint -> Nullable<Varchar>,
-        channel_id -> Nullable<Uuid>,
+        channel_id -> Nullable<Int8>,
         is_global -> Bool,
         is_ban -> Bool,
         ending_at -> Nullable<Timestamp>,
@@ -89,8 +89,8 @@ table! {
 
 table! {
     roles (id) {
-        id -> Uuid,
-        room_id -> Uuid,
+        id -> Int8,
+        room_id -> Int8,
         name -> Varchar,
         color -> Nullable<Varchar>,
         is_default -> Bool,
@@ -99,12 +99,14 @@ table! {
         path_update -> Int4,
         public_update -> Int4,
         room_delete -> Int4,
+        room_view -> Int4,
         audit_log_read -> Int4,
         embed_links -> Int4,
         ping_everyone -> Int4,
         password_create -> Int4,
         password_update -> Int4,
         password_delete -> Int4,
+        password_bypass -> Int4,
         emote_create -> Int4,
         emote_update -> Int4,
         emote_delete -> Int4,
@@ -138,15 +140,15 @@ table! {
 
 table! {
     room_channels (id) {
-        id -> Uuid,
-        channel_id -> Uuid,
-        room_id -> Uuid,
+        id -> Int8,
+        channel_id -> Int8,
+        room_id -> Int8,
     }
 }
 
 table! {
     rooms (id) {
-        id -> Uuid,
+        id -> Int8,
         title -> Varchar,
         path -> Varchar,
         is_public -> Bool,
@@ -160,31 +162,31 @@ table! {
 
 table! {
     subtitles (id) {
-        id -> Int4,
-        file_id -> Int4,
+        id -> Int8,
+        file_id -> Int8,
         url -> Nullable<Varchar>,
     }
 }
 
 table! {
     user_roles (id) {
-        id -> Int4,
-        room_id -> Uuid,
-        user_id -> Uuid,
+        id -> Int8,
+        role_id -> Int8,
+        user_id -> Int8,
         created_at -> Timestamp,
     }
 }
 
 table! {
     users (id) {
-        id -> Uuid,
+        id -> Int8,
         discord_id -> Nullable<Varchar>,
         username -> Varchar,
         nickname -> Nullable<Varchar>,
         email -> Nullable<Varchar>,
         password -> Nullable<Varchar>,
         color -> Nullable<Varchar>,
-        file_id -> Nullable<Int4>,
+        file_id -> Nullable<Int8>,
         is_admin -> Bool,
         last_login -> Nullable<Timestamp>,
         created_at -> Timestamp,
@@ -193,10 +195,10 @@ table! {
 
 table! {
     videos (id) {
-        id -> Int4,
-        room_id -> Uuid,
-        subtitles_id -> Nullable<Int4>,
-        file_id -> Nullable<Int4>,
+        id -> Int8,
+        room_id -> Int8,
+        subtitles_id -> Nullable<Int8>,
+        file_id -> Nullable<Int8>,
         url -> Nullable<Varchar>,
         title -> Nullable<Varchar>,
         duration -> Nullable<Int4>,
@@ -224,7 +226,7 @@ joinable!(roles -> rooms (room_id));
 joinable!(room_channels -> channels (channel_id));
 joinable!(room_channels -> rooms (room_id));
 joinable!(subtitles -> files (file_id));
-joinable!(user_roles -> rooms (room_id));
+joinable!(user_roles -> roles (role_id));
 joinable!(user_roles -> users (user_id));
 joinable!(users -> files (file_id));
 joinable!(videos -> rooms (room_id));

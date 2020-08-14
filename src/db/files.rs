@@ -10,14 +10,14 @@ use serde::{Deserialize, Serialize};
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct File {
-    pub id: i32,
+    pub id: i64,
     pub hash: String,
     pub ext: String,
     pub created_at: NaiveDateTime,
 }
 
 impl File {
-    pub fn by_id(file_id: i32, conn: &PgConnection) -> Result<File, DieselError> {
+    pub fn by_id(file_id: i64, conn: &PgConnection) -> Result<File, DieselError> {
         use crate::schema::files::dsl::*;
 
         files

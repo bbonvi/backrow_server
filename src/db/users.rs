@@ -6,7 +6,6 @@ use crate::diesel::*;
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 #[allow(clippy::trivially_copy_pass_by_ref)]
 fn is_false(x: &bool) -> bool {
@@ -17,7 +16,7 @@ fn is_false(x: &bool) -> bool {
 #[table_name = "users"]
 #[serde(rename_all = "camelCase")]
 pub struct User {
-    pub id: Uuid,
+    pub id: i64,
     #[serde(skip_serializing)]
     pub discord_id: Option<String>,
     pub username: String,
@@ -35,7 +34,7 @@ pub struct User {
     pub color: Option<String>,
 
     #[serde(skip_serializing)]
-    pub file_id: Option<i32>,
+    pub file_id: Option<i64>,
 
     #[serde(skip_serializing_if = "is_false")]
     pub is_admin: bool,
@@ -49,7 +48,7 @@ pub struct User {
 }
 
 impl User {
-    pub fn by_id(user_id: Uuid, conn: &PgConnection) -> Result<User, DieselError> {
+    pub fn by_id(user_id: i64, conn: &PgConnection) -> Result<User, DieselError> {
         use crate::schema::users::dsl::*;
 
         users
@@ -131,7 +130,7 @@ pub struct NewUser<'a> {
     #[serde(skip_serializing)]
     pub password: Option<String>,
     pub color: Option<String>,
-    pub file_id: Option<i32>,
+    pub file_id: Option<i64>,
 }
 
 impl<'a> Default for NewUser<'a> {
