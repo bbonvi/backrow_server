@@ -1,9 +1,10 @@
 use super::asserts;
+use super::States;
 use crate::db;
-use crate::server::errors::ResponseError;
 use actix::{Actor, StreamHandler};
 use actix_identity::Identity;
-use actix_web::{web, HttpRequest, HttpResponse};
+use actix_web::web::{Path, Payload};
+use actix_web::HttpRequest;
 use actix_web_actors::ws;
 use serde::Deserialize;
 
@@ -31,17 +32,17 @@ pub struct Info {
 
 pub async fn index(
     req: HttpRequest,
-    pool: web::Data<db::DbPool>,
-    stream: web::Payload,
-    info: web::Path<Info>,
-    id: Identity,
+    states: States,
+    stream: Payload,
+    info: Path<Info>,
+    _id: Identity,
 ) -> super::RouteResult {
     if !asserts::valid_origin(&req) {
         #[cfg(not(debug_assertions))]
         return Err(ResponseError::AccessError("Bad origin"));
     }
 
-    let conn = pool.get().unwrap();
+    let conn = states.pool.get().unwrap();
     let room_path = info.room_path.clone();
     let _room = db::Room::by_path(&room_path, &conn)?;
 

@@ -2,24 +2,28 @@ extern crate bcrypt;
 use bcrypt::{hash, verify};
 
 use super::asserts;
+use super::RouteResult;
+use super::States;
 use crate::db;
 use crate::server::errors::ResponseError;
 use actix_identity::Identity;
-use actix_web::{web, HttpResponse};
+use actix_web::web::{Data, Json, Query};
+use actix_web::HttpResponse;
 use serde::Deserialize;
 
-pub async fn get(pool: web::Data<db::DbPool>, id: Identity) -> super::RouteResult {
-    let conn = pool.get().unwrap();
+pub async fn get(states: States, id: Identity) -> RouteResult {
+    let conn = states.pool.get().unwrap();
 
+    // TODO: handle anonymous users
     if let Some(id) = id.identity() {
-        let user = db::User::by_id(id.parse::<i64>().unwrap(), &conn)?;
+        let user = db::User::by_id(id.parse::<i64>().unwrap_or_default(), &conn)?;
         Ok(HttpResponse::Ok().json(user))
     } else {
         Ok(HttpResponse::Ok().finish())
     }
 }
 
-pub async fn log_out(id: Identity) -> super::RouteResult {
+pub async fn log_out(id: Identity) -> RouteResult {
     id.forget();
     Ok(HttpResponse::Ok().finish())
 }
@@ -30,11 +34,11 @@ pub struct DiscordRedirect {
 }
 
 pub async fn sign_in_discord(
-    pool: web::Data<db::DbPool>,
-    info: web::Query<DiscordRedirect>,
+    states: States,
+    info: Query<DiscordRedirect>,
     id: Identity,
-) -> super::RouteResult {
-    let conn = pool.get().unwrap();
+) -> RouteResult {
+    let conn = states.pool.get().unwrap();
 
     let discord_user = super::auth::get_discord_user(info.code.clone())
         .await
@@ -71,12 +75,8 @@ pub struct AuthForm {
     password: String,
 }
 
-pub async fn sign_in(
-    pool: web::Data<db::DbPool>,
-    form: web::Json<AuthForm>,
-    id: Identity,
-) -> super::RouteResult {
-    let conn = pool.get().unwrap();
+pub async fn sign_in(states: States, form: Json<AuthForm>, id: Identity) -> RouteResult {
+    let conn = states.pool.get().unwrap();
 
     let user = db::User::by_name(&form.username.clone(), &conn)?;
     let password = user.password.clone();
@@ -100,12 +100,8 @@ pub async fn sign_in(
     Err(ResponseError::AccessError("Password is invalid"))
 }
 
-pub async fn sign_up(
-    pool: web::Data<db::DbPool>,
-    form: web::Json<AuthForm>,
-    id: Identity,
-) -> super::RouteResult {
-    let conn = pool.get().unwrap();
+pub async fn sign_up(states: States, form: Json<AuthForm>, id: Identity) -> RouteResult {
+    let conn = states.pool.get().unwrap();
 
     if !asserts::valid_username(&form.username) {
         return Err(ResponseError::BadRequestMessage(

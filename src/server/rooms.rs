@@ -1,8 +1,11 @@
 use super::asserts;
+use super::RouteResult;
+use super::States;
 use crate::db;
 use crate::server::errors::ResponseError;
 use actix_identity::Identity;
-use actix_web::{web, HttpResponse};
+use actix_web::web::{Data, Json, Query};
+use actix_web::HttpResponse;
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
@@ -11,11 +14,7 @@ pub struct CreateRoom {
     path: String,
 }
 
-pub async fn create(
-    pool: web::Data<db::DbPool>,
-    id: Identity,
-    form: web::Json<CreateRoom>,
-) -> super::RouteResult {
+pub async fn create(states: States, id: Identity, form: Json<CreateRoom>) -> RouteResult {
     use crate::diesel::Connection;
 
     let id: String = match id.identity() {
@@ -31,7 +30,7 @@ pub async fn create(
         return Err(ResponseError::BadRequestMessage("Invalid room path"));
     }
 
-    let conn = pool.get().unwrap();
+    let conn = states.pool.get().unwrap();
 
     if db::Room::by_path(&form.path, &conn).is_ok() {
         return Err(ResponseError::BadRequestMessage(
@@ -39,7 +38,7 @@ pub async fn create(
         ));
     }
 
-    let user = db::User::by_id(id.parse::<i64>().unwrap(), &conn)?;
+    let user = db::User::by_id(id.parse::<i64>().unwrap_or_default(), &conn)?;
     let room: Result<db::Room, db::DieselError> = conn.transaction(|| {
         // create room
         let room = db::NewRoom {
@@ -70,8 +69,9 @@ pub async fn create(
 
     Ok(HttpResponse::Ok().json(room))
 }
-pub async fn list(pool: web::Data<db::DbPool>) -> super::RouteResult {
-    let conn = pool.get().unwrap();
+
+pub async fn list(states: States) -> RouteResult {
+    let conn = states.pool.get().unwrap();
 
     let rooms = db::Room::list(&conn)?;
 

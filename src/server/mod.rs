@@ -20,16 +20,24 @@ const LOGGER_FORMAT: &str = "\"%r\", \"%a\", \"%s\", \"%{User-Agent}i\"";
 
 type RouteResult = Result<HttpResponse, errors::ResponseError>;
 
+#[derive(Clone)]
+pub struct AppStates {
+    pool: db::DbPool,
+}
+
+type States = web::Data<AppStates>;
+
 #[actix_rt::main]
 pub async fn run() -> std::io::Result<()> {
     let pool = db::get_pool();
     let addr = env::APP_ADDR.clone();
+    let states = AppStates { pool: pool.clone() };
 
     const YEAR_IN_SECS: i64 = 60 * 60 * 24 * 365;
 
     HttpServer::new(move || {
         App::new()
-            .data(pool.clone())
+            .data(states.clone())
             .wrap(IdentityService::new(
                 CookieIdentityPolicy::new(&[0; 32])
                     .name("auth-cookie")
