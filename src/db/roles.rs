@@ -17,10 +17,13 @@ use crate::diesel::*;
 use chrono::NaiveDateTime;
 use diesel::sql_types::*;
 use serde::{Deserialize, Serialize};
+use serde_repr::*;
 
-#[derive(Debug, Copy, Clone, AsExpression, FromSqlRow, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, AsExpression, FromSqlRow, Serialize_repr, Deserialize_repr)]
 #[sql_type = "Integer"]
+#[repr(i32)]
 pub enum PermissionState {
+    /// Inherited
     Unset = -1,
     Forbidden = 0,
     Allowed = 1,
@@ -60,64 +63,108 @@ where
     }
 }
 
-#[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
+#[derive(
+    AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone, QueryableByName,
+)]
 #[table_name = "roles"]
 #[serde(rename_all = "camelCase")]
+#[belongs_to(Room, foreign_key = "room_id")]
 pub struct Role {
     pub id: i64,
     pub room_id: i64,
     pub name: String,
     pub color: Option<String>,
+
+    /// whether or not role was generated upon room creation
     pub is_default: bool,
+    /// priority position. lower number - higher priority.
     pub position: i32,
 
+    /// permission to update room title
     pub title_update: PermissionState,
+    /// permission to update room path
     pub path_update: PermissionState,
+    /// permission to update room's visibility
     pub public_update: PermissionState,
+    /// permission to update delete room
     pub room_delete: PermissionState,
+    /// permission to update enter room
     pub room_view: PermissionState,
+    /// permission to view audit log
     pub audit_log_read: PermissionState,
+    /// permission to preload content of messages' links and show it in chat (usefull for images)
     pub embed_links: PermissionState,
+    /// permission to ping @everyone
     pub ping_everyone: PermissionState,
 
+    /// permission to create password
     pub password_create: PermissionState,
+    /// permission to update password
     pub password_update: PermissionState,
+    /// permission to delete password
     pub password_delete: PermissionState,
+    /// permission to bypass password
     pub password_bypass: PermissionState,
 
+    /// permission to create emote
     pub emote_create: PermissionState,
+    /// permission to update emote
     pub emote_update: PermissionState,
+    /// permission to delete emote
     pub emote_delete: PermissionState,
+    /// permission to view emotes. (TODO: we don't need this)
     pub emote_view: PermissionState,
 
+    /// permission to create roles
     pub role_create: PermissionState,
+    /// permission to delete roles
     pub role_delete: PermissionState,
+    /// permission to update roles
     pub role_update: PermissionState,
+    /// permission to view roles
     pub role_view: PermissionState,
 
+    /// permission to add video to playlsit
     pub video_create: PermissionState,
+    /// permission to delete video from playlist
     pub video_delete: PermissionState,
+    /// permission to watch video
     pub video_watch: PermissionState,
+    /// permission to move videos in playlist
     pub video_move: PermissionState,
+    /// permission to embed iframe 
     pub video_iframe: PermissionState,
+    /// permission to add video by direct link
     pub video_raw: PermissionState,
 
+    /// permission to pause playlist
     pub player_pause: PermissionState,
+    /// permission to resume playlist
     pub player_resume: PermissionState,
+    /// permission to rewind video
     pub player_rewind: PermissionState,
 
+    /// permission to upload subtitles
     pub subtitles_file: PermissionState,
+    /// permission to embed subtitles by link (TODO: no need for this)
     pub subtitles_embed: PermissionState,
 
+    /// permission to send messages
     pub message_create: PermissionState,
+    /// permission to read messages
     pub message_read: PermissionState,
+    /// permission to read messages history
     pub message_history_read: PermissionState,
-    // timeout in seconds between sending messages. default is -1 which means inherited.
+    /// timeout between messages
     pub message_timeout: i32,
 
+    /// permission to kick users
     pub user_kick: PermissionState,
+    /// permission to ban users
     pub user_ban: PermissionState,
+    /// permission to unban users
     pub user_unban: PermissionState,
+    /// permission to timeout users
     pub user_timeout: PermissionState,
 
     pub created_at: NaiveDateTime,
