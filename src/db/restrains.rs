@@ -77,7 +77,7 @@ impl Restrain {
             .map_err(From::from)
     }
 
-    pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
+    pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::restrains::dsl::*;
 
         diesel::delete(restrains.filter(id.eq(self.id)))
@@ -89,7 +89,7 @@ impl Restrain {
             .map_err(From::from)
     }
 
-    pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<Restrain, DieselError> {
+    pub fn update(&self, conn: &PgConnection) -> Result<Restrain, DieselError> {
         use crate::schema::restrains::dsl::*;
 
         diesel::update(restrains)
@@ -120,7 +120,7 @@ pub struct NewRestrain {
 }
 
 impl NewRestrain {
-    pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<Restrain, DieselError> {
+    pub fn create(&self, conn: &PgConnection) -> Result<Restrain, DieselError> {
         use crate::schema::restrains::dsl::*;
 
         diesel::insert_into(restrains)

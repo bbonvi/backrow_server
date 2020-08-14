@@ -90,7 +90,7 @@ impl Video {
             .map_err(From::from)
     }
 
-    pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
+    pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::videos::dsl::*;
 
         diesel::delete(videos.filter(id.eq(self.id)))
@@ -135,7 +135,7 @@ impl NewVideo {
             Ok(result)
         })
     }
-    pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<Video, DieselError> {
+    pub fn create(&self, conn: &PgConnection) -> Result<Video, DieselError> {
         use crate::schema::videos::dsl::*;
 
         diesel::insert_into(videos)
@@ -171,7 +171,7 @@ impl Subtitles {
             })
             .map_err(From::from)
     }
-    pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
+    pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::subtitles::dsl::*;
 
         diesel::delete(subtitles.filter(id.eq(self.id)))
@@ -193,7 +193,7 @@ pub struct NewSubtitles {
 }
 
 impl NewSubtitles {
-    pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<Subtitles, DieselError> {
+    pub fn create(&self, conn: &PgConnection) -> Result<Subtitles, DieselError> {
         use crate::schema::subtitles::dsl::*;
 
         diesel::insert_into(subtitles)

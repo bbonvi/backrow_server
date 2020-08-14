@@ -44,7 +44,7 @@ impl Channel {
             .map_err(From::from)
     }
 
-    pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
+    pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::channels::dsl::*;
 
         diesel::delete(channels.filter(id.eq(self.id)))
@@ -56,7 +56,7 @@ impl Channel {
             .map_err(From::from)
     }
 
-    pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<Channel, DieselError> {
+    pub fn update(&self, conn: &PgConnection) -> Result<Channel, DieselError> {
         use crate::schema::channels::dsl::*;
 
         diesel::update(channels)
@@ -154,7 +154,7 @@ impl RoomChannel {
             .map_err(From::from)
     }
 
-    pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
+    pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::room_channels::dsl::*;
 
         diesel::delete(room_channels.filter(id.eq(self.id)))
@@ -166,7 +166,7 @@ impl RoomChannel {
             .map_err(From::from)
     }
 
-    pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<RoomChannel, DieselError> {
+    pub fn update(&self, conn: &PgConnection) -> Result<RoomChannel, DieselError> {
         use crate::schema::room_channels::dsl::*;
 
         diesel::update(room_channels)

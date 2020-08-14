@@ -123,7 +123,7 @@ impl AuditLog {
             .map_err(From::from)
     }
 
-    pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
+    pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::audit_logs::dsl::*;
 
         diesel::delete(audit_logs.filter(id.eq(self.id)))
@@ -135,7 +135,7 @@ impl AuditLog {
             .map_err(From::from)
     }
 
-    pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<AuditLog, DieselError> {
+    pub fn update(&self, conn: &PgConnection) -> Result<AuditLog, DieselError> {
         use crate::schema::audit_logs::dsl::*;
 
         diesel::update(audit_logs)
@@ -163,7 +163,7 @@ pub struct NewAuditLog<'a> {
 }
 
 impl<'a> NewAuditLog<'a> {
-    pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<AuditLog, DieselError> {
+    pub fn create(&self, conn: &PgConnection) -> Result<AuditLog, DieselError> {
         use crate::schema::audit_logs::dsl::*;
 
         diesel::insert_into(audit_logs)

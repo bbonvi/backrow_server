@@ -66,7 +66,7 @@ impl Emote {
             .map_err(From::from)
     }
 
-    pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
+    pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::emotes::dsl::*;
 
         diesel::delete(emotes.filter(id.eq(self.id)))
@@ -78,7 +78,7 @@ impl Emote {
             .map_err(From::from)
     }
 
-    pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<Emote, DieselError> {
+    pub fn update(&self, conn: &PgConnection) -> Result<Emote, DieselError> {
         use crate::schema::emotes::dsl::*;
 
         diesel::update(emotes)
@@ -105,7 +105,7 @@ pub struct NewEmote<'a> {
 }
 
 impl<'a> NewEmote<'a> {
-    pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<Emote, DieselError> {
+    pub fn create(&self, conn: &PgConnection) -> Result<Emote, DieselError> {
         use crate::schema::emotes::dsl::*;
 
         diesel::insert_into(emotes)

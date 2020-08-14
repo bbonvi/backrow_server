@@ -93,7 +93,7 @@ impl User {
             .map_err(From::from)
     }
 
-    pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
+    pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::users::dsl::*;
 
         diesel::delete(users.filter(id.eq(self.id)))
@@ -105,7 +105,7 @@ impl User {
             .map_err(From::from)
     }
 
-    pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<User, DieselError> {
+    pub fn update(&self, conn: &PgConnection) -> Result<User, DieselError> {
         use crate::schema::users::dsl::*;
 
         diesel::update(users)
@@ -156,7 +156,7 @@ impl<'a> Default for NewUser<'a> {
 // type ByName<'a> = diesel::dsl::Filter<All, WithName<'a>>;
 
 impl<'a> NewUser<'a> {
-    pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<User, DieselError> {
+    pub fn create(&self, conn: &PgConnection) -> Result<User, DieselError> {
         use crate::schema::users::dsl::*;
 
         diesel::insert_into(users)

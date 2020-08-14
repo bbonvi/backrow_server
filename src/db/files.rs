@@ -30,7 +30,7 @@ impl File {
             .map_err(From::from)
     }
 
-    pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
+    pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::files::dsl::*;
 
         diesel::delete(files.filter(id.eq(self.id)))
@@ -53,7 +53,7 @@ pub struct NewFile<'a> {
 }
 
 impl<'a> NewFile<'a> {
-    pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<File, DieselError> {
+    pub fn create(&self, conn: &PgConnection) -> Result<File, DieselError> {
         use crate::schema::files::dsl::*;
 
         diesel::insert_into(files)

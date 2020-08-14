@@ -70,7 +70,7 @@ impl Message {
         })
     }
 
-    pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
+    pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::messages::dsl::*;
 
         diesel::delete(messages.filter(id.eq(self.id)))
@@ -82,7 +82,7 @@ impl Message {
             .map_err(From::from)
     }
 
-    pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<Message, DieselError> {
+    pub fn update(&self, conn: &PgConnection) -> Result<Message, DieselError> {
         use crate::schema::messages::dsl::*;
 
         diesel::update(messages)
@@ -111,7 +111,7 @@ type NewMessageWithMentions<'a> = (NewMessage<'a>, Vec<User>);
 
 impl<'a> NewMessage<'a> {
     fn create_with_mentions(
-        self: &'_ Self,
+        &self,
         mentioned_users: Vec<User>,
         conn: &PgConnection,
     ) -> Result<(Message, Vec<MessageMention>), DieselError> {
@@ -130,7 +130,7 @@ impl<'a> NewMessage<'a> {
 
         Ok((message_created, mentions))
     }
-    pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<Message, DieselError> {
+    pub fn create(&self, conn: &PgConnection) -> Result<Message, DieselError> {
         use crate::schema::messages::dsl::*;
 
         diesel::insert_into(messages)
@@ -171,7 +171,7 @@ pub struct MessageMention {
 }
 
 impl MessageMention {
-    pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
+    pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::message_mentions::dsl::*;
 
         diesel::delete(message_mentions.filter(id.eq(self.id)))
@@ -194,7 +194,7 @@ pub struct NewMessageMention {
 }
 
 impl NewMessageMention {
-    pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<MessageMention, DieselError> {
+    pub fn create(&self, conn: &PgConnection) -> Result<MessageMention, DieselError> {
         use crate::schema::message_mentions::dsl::*;
 
         diesel::insert_into(message_mentions)

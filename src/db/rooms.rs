@@ -61,7 +61,7 @@ impl Room {
             .map_err(From::from)
     }
 
-    pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
+    pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::rooms::dsl::*;
 
         diesel::delete(rooms.filter(id.eq(self.id)))
@@ -73,7 +73,7 @@ impl Room {
             .map_err(From::from)
     }
 
-    pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<Room, DieselError> {
+    pub fn update(&self, conn: &PgConnection) -> Result<Room, DieselError> {
         use crate::schema::rooms::dsl::*;
 
         diesel::update(rooms)
@@ -110,7 +110,7 @@ impl<'a> Default for NewRoom<'a> {
 }
 
 impl<'a> NewRoom<'a> {
-    pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<Room, DieselError> {
+    pub fn create(&self, conn: &PgConnection) -> Result<Room, DieselError> {
         use crate::schema::rooms::dsl::*;
 
         diesel::insert_into(rooms)

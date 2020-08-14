@@ -146,7 +146,7 @@ impl Role {
             .map_err(From::from)
     }
 
-    pub fn delete(self: &'_ Self, conn: &PgConnection) -> Result<usize, DieselError> {
+    pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::roles::dsl::*;
 
         diesel::delete(roles.filter(id.eq(self.id)))
@@ -158,7 +158,7 @@ impl Role {
             .map_err(From::from)
     }
 
-    pub fn update(self: &'_ Self, conn: &PgConnection) -> Result<Role, DieselError> {
+    pub fn update(&self, conn: &PgConnection) -> Result<Role, DieselError> {
         use crate::schema::roles::dsl::*;
 
         diesel::update(roles)
@@ -293,7 +293,7 @@ impl<'a> Default for NewRole<'a> {
 }
 
 impl<'a> NewRole<'a> {
-    pub fn create(self: &'_ Self, conn: &PgConnection) -> Result<Role, DieselError> {
+    pub fn create(&self, conn: &PgConnection) -> Result<Role, DieselError> {
         use crate::schema::roles::dsl::*;
 
         diesel::insert_into(roles)
