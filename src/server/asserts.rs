@@ -18,15 +18,15 @@ pub fn valid_origin(req: &actix_web::HttpRequest) -> bool {
     origin.contains(&app_origin)
 }
 
-pub fn valid_username(username: &String) -> bool {
-    in_range(username, USERNAME_MIN_LEN, USERNAME_MAX_LEN) && matches("^[a-zA-Z0-9_]+$", &username)
+pub fn valid_username(username: &str) -> bool {
+    in_range(username, USERNAME_MIN_LEN, USERNAME_MAX_LEN) && matches(&username, "^[a-zA-Z0-9_]+$")
 }
 
-pub fn valid_password(password: &String) -> bool {
+pub fn valid_password(password: &str) -> bool {
     in_range(password, PASSWORD_MIN_LEN, PASSWORD_MAX_LEN)
 }
 
-pub fn valid_nickname(nickname: String) -> bool {
+pub fn valid_nickname(nickname: &str) -> bool {
     in_range(&nickname, NICKNAME_MIN_LEN, NICKNAME_MAX_LEN)
 }
 
@@ -38,10 +38,10 @@ pub fn valid_email(email: String) -> bool {
         )
 }
 
-pub fn valid_room_name(name: String) -> bool {
+pub fn valid_room_name(name: &str) -> bool {
     in_range(&name, ROOM_NAME_MIN_LEN, ROOM_NAME_MAX_LEN)
 }
 
-pub fn valid_room_path(username: &String) -> bool {
-    in_range(username, USERNAME_MIN_LEN, USERNAME_MAX_LEN) && matches(username, r"^[a-zA-Z0-9_]+$")
+pub fn valid_room_path(username: &str) -> bool {
+    in_range(&username, USERNAME_MIN_LEN, USERNAME_MAX_LEN) && matches(username, r"^[a-zA-Z0-9_]+$")
 }
