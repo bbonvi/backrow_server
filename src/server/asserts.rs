@@ -31,7 +31,7 @@ pub fn valid_nickname(nickname: String) -> bool {
 }
 
 pub fn valid_email(email: String) -> bool {
-    in_range(&email, 4, 100)
+    in_range(&email, 3, 320)
         && matches(
             &email,
             &r#"^[a-zA-Z0-9!#$%&'*+-/=?^_`{|}~."\(\),:;<>@\[\]]+$""#,
