@@ -275,7 +275,6 @@ pub struct NewRole<'a> {
     pub color: Option<&'a str>,
     pub is_default: bool,
     pub position: i32,
-
     pub title_update: PermissionState,
     pub path_update: PermissionState,
     pub public_update: PermissionState,
@@ -284,41 +283,33 @@ pub struct NewRole<'a> {
     pub audit_log_read: PermissionState,
     pub embed_links: PermissionState,
     pub ping_everyone: PermissionState,
-
     pub password_create: PermissionState,
     pub password_update: PermissionState,
     pub password_delete: PermissionState,
     pub password_bypass: PermissionState,
-
     pub emote_create: PermissionState,
     pub emote_update: PermissionState,
     pub emote_delete: PermissionState,
     pub emote_view: PermissionState,
-
     pub role_create: PermissionState,
     pub role_delete: PermissionState,
     pub role_update: PermissionState,
     pub role_view: PermissionState,
-
     pub video_create: PermissionState,
     pub video_delete: PermissionState,
     pub video_watch: PermissionState,
     pub video_move: PermissionState,
     pub video_iframe: PermissionState,
     pub video_raw: PermissionState,
-
     pub player_pause: PermissionState,
     pub player_resume: PermissionState,
     pub player_rewind: PermissionState,
-
     pub subtitles_file: PermissionState,
     pub subtitles_embed: PermissionState,
-
     pub message_create: PermissionState,
     pub message_read: PermissionState,
     pub message_history_read: PermissionState,
     pub message_timeout: i32,
-
     pub user_kick: PermissionState,
     pub user_ban: PermissionState,
     pub user_unban: PermissionState,
@@ -332,11 +323,9 @@ impl<'a> Default for NewRole<'a> {
         NewRole {
             room_id: i64::default(),
             name: "",
-
             color: None,
             is_default: false,
             position: 999,
-
             title_update: PermissionState::Unset,
             path_update: PermissionState::Unset,
             public_update: PermissionState::Unset,
@@ -345,41 +334,33 @@ impl<'a> Default for NewRole<'a> {
             audit_log_read: PermissionState::Unset,
             embed_links: PermissionState::Unset,
             ping_everyone: PermissionState::Unset,
-
             password_create: PermissionState::Unset,
             password_update: PermissionState::Unset,
             password_delete: PermissionState::Unset,
             password_bypass: PermissionState::Unset,
-
             emote_create: PermissionState::Unset,
             emote_update: PermissionState::Unset,
             emote_delete: PermissionState::Unset,
             emote_view: PermissionState::Unset,
-
             role_create: PermissionState::Unset,
             role_delete: PermissionState::Unset,
             role_update: PermissionState::Unset,
             role_view: PermissionState::Unset,
-
             video_create: PermissionState::Unset,
             video_delete: PermissionState::Unset,
             video_watch: PermissionState::Unset,
             video_move: PermissionState::Unset,
             video_iframe: PermissionState::Unset,
             video_raw: PermissionState::Unset,
-
             player_pause: PermissionState::Unset,
             player_resume: PermissionState::Unset,
             player_rewind: PermissionState::Unset,
-
             subtitles_file: PermissionState::Unset,
             subtitles_embed: PermissionState::Unset,
-
             message_create: PermissionState::Unset,
             message_read: PermissionState::Unset,
             message_history_read: PermissionState::Unset,
             message_timeout: -1,
-
             user_kick: PermissionState::Unset,
             user_ban: PermissionState::Unset,
             user_unban: PermissionState::Unset,
@@ -398,7 +379,6 @@ impl<'a> NewRole<'a> {
             color: Some("#ff9200"),
             is_default: true,
             position: 0,
-
             title_update: PermissionState::Allowed,
             path_update: PermissionState::Allowed,
             public_update: PermissionState::Allowed,
@@ -407,41 +387,33 @@ impl<'a> NewRole<'a> {
             audit_log_read: PermissionState::Allowed,
             embed_links: PermissionState::Allowed,
             ping_everyone: PermissionState::Allowed,
-
             password_create: PermissionState::Allowed,
             password_update: PermissionState::Allowed,
             password_delete: PermissionState::Allowed,
             password_bypass: PermissionState::Allowed,
-
             emote_create: PermissionState::Allowed,
             emote_update: PermissionState::Allowed,
             emote_delete: PermissionState::Allowed,
             emote_view: PermissionState::Allowed,
-
             role_create: PermissionState::Allowed,
             role_delete: PermissionState::Allowed,
             role_update: PermissionState::Allowed,
             role_view: PermissionState::Allowed,
-
             video_create: PermissionState::Allowed,
             video_delete: PermissionState::Allowed,
             video_watch: PermissionState::Allowed,
             video_move: PermissionState::Allowed,
             video_iframe: PermissionState::Allowed,
             video_raw: PermissionState::Allowed,
-
             player_pause: PermissionState::Allowed,
             player_resume: PermissionState::Allowed,
             player_rewind: PermissionState::Allowed,
-
             subtitles_file: PermissionState::Allowed,
             subtitles_embed: PermissionState::Allowed,
-
             message_create: PermissionState::Allowed,
             message_read: PermissionState::Allowed,
             message_history_read: PermissionState::Allowed,
             message_timeout: 0,
-
             user_kick: PermissionState::Allowed,
             user_ban: PermissionState::Allowed,
             user_unban: PermissionState::Allowed,
@@ -518,41 +490,33 @@ impl<'a> NewRole<'a> {
             audit_log_read: PermissionState::Forbidden,
             embed_links: PermissionState::Forbidden,
             ping_everyone: PermissionState::Forbidden,
-
             password_create: PermissionState::Forbidden,
             password_update: PermissionState::Forbidden,
             password_delete: PermissionState::Forbidden,
             password_bypass: PermissionState::Forbidden,
-
             emote_create: PermissionState::Forbidden,
             emote_update: PermissionState::Forbidden,
             emote_delete: PermissionState::Forbidden,
             emote_view: PermissionState::Allowed,
-
             role_create: PermissionState::Forbidden,
             role_delete: PermissionState::Forbidden,
             role_update: PermissionState::Forbidden,
             role_view: PermissionState::Allowed,
-
             video_create: PermissionState::Forbidden,
             video_delete: PermissionState::Forbidden,
             video_watch: PermissionState::Allowed,
             video_move: PermissionState::Forbidden,
             video_iframe: PermissionState::Forbidden,
             video_raw: PermissionState::Forbidden,
-
             player_pause: PermissionState::Forbidden,
             player_resume: PermissionState::Forbidden,
             player_rewind: PermissionState::Forbidden,
-
             subtitles_file: PermissionState::Forbidden,
             subtitles_embed: PermissionState::Forbidden,
-
             message_create: PermissionState::Allowed,
             message_read: PermissionState::Allowed,
             message_history_read: PermissionState::Allowed,
             message_timeout: 1,
-
             user_kick: PermissionState::Forbidden,
             user_ban: PermissionState::Forbidden,
             user_unban: PermissionState::Forbidden,
@@ -586,25 +550,6 @@ pub struct UserRole {
 }
 
 impl UserRole {
-    // TODO: implement
-    // pub fn list_by_room_id(
-    //     room_id_query: i64,
-    //     conn: &PgConnection,
-    // ) -> Result<UserRole, DieselError> {
-    //     use crate::schema::user_roles::dsl::*;
-    //
-    // }
-
-    // TODO: implement
-    // pub fn list_by_user_id_and_room_id(
-    //     room_id_query: i64,
-    //     user_id_query: i64,
-    //     conn: &PgConnection,
-    // ) -> Result<UserRole, DieselError> {
-    //     use crate::schema::user_roles::dsl::*;
-    //
-    // }
-
     pub fn by_id(user_role_id: i64, conn: &PgConnection) -> Result<UserRole, DieselError> {
         use crate::schema::user_roles::dsl::*;
 

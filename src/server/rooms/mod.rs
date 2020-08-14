@@ -4,63 +4,11 @@ use super::States;
 use crate::db;
 use crate::server::errors::ResponseError;
 use actix_identity::Identity;
-use actix_web::web::{Json, Path};
+use actix_web::web::Json;
 use actix_web::HttpResponse;
 use serde::Deserialize;
 
-#[derive(Deserialize, Debug)]
-enum ActionType {
-    ChangeTitle = 0,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct RoomAction {
-    // TODO: probably need to move somewhere else
-    Message,
-    ChangeTitle = 0,
-    ChangePath,
-    ChangePublic,
-    ChangePublic,
-    DeleteRoom,
-    PasswordCreate,
-    PasswordUpdate,
-    PasswordDelete,
-    EmoteCreate,
-    EmoteUpdate,
-    EmoteDelete,
-    RoleCreate,
-    RoleUpdate,
-    RoleDelete,
-    VideoAdd,
-    VideoDelete,
-    VideoMove,
-    PlayerPause,
-    PlayerResume,
-    PlayerRewind,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct Info {
-    room_path: String,
-}
-
-pub async fn action(
-    form: Json<RoomAction>,
-    info: Path<Info>,
-    states: States,
-    id: Identity,
-) -> RouteResult {
-    let id: i64 = match id.identity() {
-        None => return Err(ResponseError::AccessError("Unauthorize")),
-        Some(id) => id.parse::<i64>().unwrap_or_default(),
-    };
-
-    let conn = states.pool.get().unwrap();
-
-    let rooms = db::Room::list(&conn)?;
-
-    Ok(HttpResponse::Ok().json(rooms))
-}
+pub mod actions;
 
 #[derive(Deserialize, Debug)]
 pub struct CreateRoom {
