@@ -4,9 +4,63 @@ use super::States;
 use crate::db;
 use crate::server::errors::ResponseError;
 use actix_identity::Identity;
-use actix_web::web::{Data, Json, Query};
+use actix_web::web::{Json, Path};
 use actix_web::HttpResponse;
 use serde::Deserialize;
+
+#[derive(Deserialize, Debug)]
+enum ActionType {
+    ChangeTitle = 0,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct RoomAction {
+    // TODO: probably need to move somewhere else
+    Message,
+    ChangeTitle = 0,
+    ChangePath,
+    ChangePublic,
+    ChangePublic,
+    DeleteRoom,
+    PasswordCreate,
+    PasswordUpdate,
+    PasswordDelete,
+    EmoteCreate,
+    EmoteUpdate,
+    EmoteDelete,
+    RoleCreate,
+    RoleUpdate,
+    RoleDelete,
+    VideoAdd,
+    VideoDelete,
+    VideoMove,
+    PlayerPause,
+    PlayerResume,
+    PlayerRewind,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Info {
+    room_path: String,
+}
+
+pub async fn action(
+    form: Json<RoomAction>,
+    info: Path<Info>,
+    states: States,
+    id: Identity,
+) -> RouteResult {
+    let id: i64 = match id.identity() {
+        None => return Err(ResponseError::AccessError("Unauthorize")),
+        Some(id) => id.parse::<i64>().unwrap_or_default(),
+    };
+
+    let conn = states.pool.get().unwrap();
+
+    let rooms = db::Room::list(&conn)?;
+
+    Ok(HttpResponse::Ok().json(rooms))
+}
 
 #[derive(Deserialize, Debug)]
 pub struct CreateRoom {
@@ -17,9 +71,9 @@ pub struct CreateRoom {
 pub async fn create(states: States, id: Identity, form: Json<CreateRoom>) -> RouteResult {
     use crate::diesel::Connection;
 
-    let id: String = match id.identity() {
+    let id: i64 = match id.identity() {
         None => return Err(ResponseError::AccessError("Unauthorize")),
-        Some(i) => i,
+        Some(id) => id.parse::<i64>().unwrap_or_default(),
     };
 
     if !asserts::valid_room_name(&form.title) {
@@ -38,7 +92,7 @@ pub async fn create(states: States, id: Identity, form: Json<CreateRoom>) -> Rou
         ));
     }
 
-    let user = db::User::by_id(id.parse::<i64>().unwrap_or_default(), &conn)?;
+    let user = db::User::by_id(id, &conn)?;
     let room: Result<db::Room, db::DieselError> = conn.transaction(|| {
         // create room
         let room = db::NewRoom {
@@ -70,6 +124,7 @@ pub async fn create(states: States, id: Identity, form: Json<CreateRoom>) -> Rou
     Ok(HttpResponse::Ok().json(room))
 }
 
+// TODO: pagination
 pub async fn list(states: States) -> RouteResult {
     let conn = states.pool.get().unwrap();
 

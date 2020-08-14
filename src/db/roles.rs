@@ -1,6 +1,10 @@
 use super::DieselError;
+use super::Room;
+use super::User;
 use crate::schema::roles;
 use crate::schema::user_roles;
+use diesel::sql_query;
+use std::vec::Vec;
 
 use diesel::backend::Backend;
 use diesel::deserialize::FromSql;
@@ -120,12 +124,19 @@ pub struct Role {
 }
 
 impl Role {
-    pub fn list_by_room_id(room_id_query: i64, conn: &PgConnection) -> Result<Role, DieselError> {
+    pub fn list_by_room_id(
+        room_id_query: i64,
+        conn: &PgConnection,
+    ) -> Result<Vec<Role>, DieselError> {
         use crate::schema::roles::dsl::*;
+
+        // TODO: pagination
+        const LIMIT: i64 = 100;
 
         roles
             .filter(room_id.eq(room_id_query))
-            .first::<Role>(conn)
+            .limit(LIMIT)
+            .load::<Role>(conn)
             .map_err(|err| {
                 error!(
                     "Couldn't query role by room_id {:?}: {}",
@@ -134,6 +145,37 @@ impl Role {
                 err
             })
             .map_err(From::from)
+    }
+
+    pub fn list_user_roles_by_room_id(
+        user_id_query: i64,
+        room_id_query: i64,
+        conn: &PgConnection,
+    ) -> Result<Vec<Role>, DieselError> {
+        // TODO: pagination
+        const LIMIT: i64 = 100;
+
+        let q = sql_query(
+            "SELECT *
+            FROM roles AS r
+            WHERE r.room_id = $1
+            AND EXISTS (SELECT * FROM user_roles AS ur WHERE r.id = ur.role_id AND ur.user_id = $2)
+            ORDER BY position",
+        )
+        .bind::<BigInt, _>(room_id_query)
+        .bind::<BigInt, _>(user_id_query);
+        let debug = diesel::debug_query::<diesel::pg::Pg, _>(&q);
+        info!("{}", debug);
+        q
+        .load::<Role>(conn)
+        .map_err(|err| {
+            error!(
+                "Couldn't query roles by room_id {:?} and user id {:?}: {}",
+                room_id_query, user_id_query, err
+            );
+            err
+        })
+        .map_err(From::from)
     }
 
     pub fn by_id(role_id: i64, conn: &PgConnection) -> Result<Role, DieselError> {
@@ -488,6 +530,7 @@ impl<'a> NewRole<'a> {
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[table_name = "user_roles"]
 #[serde(rename_all = "camelCase")]
+#[belongs_to(Role, foreign_key = "role_id")]
 pub struct UserRole {
     pub id: i64,
     pub role_id: i64,

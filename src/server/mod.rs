@@ -54,7 +54,7 @@ pub async fn run() -> std::io::Result<()> {
                             .service(
                                 web::scope("/{room_path}")
                                     .route("/ws", web::get().to(ws::index))
-                                    .route("/action", web::get().to(HttpResponse::Ok)),
+                                    .route("/action", web::get().to(rooms::action)),
                             )
                             .route("", web::get().to(HttpResponse::Ok)),
                     )
