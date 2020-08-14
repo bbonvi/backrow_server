@@ -26,6 +26,9 @@ pub struct DiscordUser {
 
 // #[tokio::main]
 pub async fn get_discord_user(code: String) -> Result<DiscordUser, Error> {
+    let client = reqwest::Client::new();
+
+    // Get user token
     let params = [
         ("code", &code),
         ("client_id", &env::DISCORD_CLIENT_ID.clone()),
@@ -34,24 +37,17 @@ pub async fn get_discord_user(code: String) -> Result<DiscordUser, Error> {
         ("redirect_uri", &env::DISCORD_REDIRECT_URL.clone()),
         ("scope", &String::from("identify")),
     ];
-
-    let token_url = "https://discord.com/api/oauth2/token";
-
-    let client = reqwest::Client::new();
-
-    // Auhorize `code`
     let res = client
-        .post(token_url)
+        .post("https://discord.com/api/oauth2/token")
         .form(&params)
         .send()
         .await?
         .json::<DiscordTokenResponse>()
         .await?;
 
-    let user_url = "https://discord.com/api/v6/users/@me";
-    // Get discord user, using authorization code.
+    // Get user info, using token
     let user = client
-        .get(user_url)
+        .get("https://discord.com/api/v6/users/@me")
         .header(
             reqwest::header::AUTHORIZATION,
             format!("Bearer {}", res.access_token),
