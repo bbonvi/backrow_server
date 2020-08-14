@@ -35,7 +35,7 @@ pub async fn index(
     stream: web::Payload,
     info: web::Path<Info>,
     id: Identity,
-) -> Result<HttpResponse, ResponseError> {
+) -> super::RouteResult {
     if !asserts::valid_origin(&req) {
         #[cfg(not(debug_assertions))]
         return Err(ResponseError::AccessError("Bad origin"));

@@ -14,7 +14,6 @@ use chrono::NaiveDateTime;
 use diesel::sql_types::*;
 use serde::{Deserialize, Serialize};
 
-
 #[derive(Debug, Copy, Clone, AsExpression, FromSqlRow, Serialize, Deserialize)]
 #[sql_type = "Integer"]
 pub enum PermissionState {

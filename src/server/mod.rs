@@ -18,6 +18,8 @@ mod ws;
 /// "first line of request", "ip", "status code", "user-agent"
 const LOGGER_FORMAT: &str = "\"%r\", \"%a\", \"%s\", \"%{User-Agent}i\"";
 
+type RouteResult = Result<HttpResponse, errors::ResponseError>;
+
 #[actix_rt::main]
 pub async fn run() -> std::io::Result<()> {
     let pool = db::get_pool();
@@ -40,6 +42,7 @@ pub async fn run() -> std::io::Result<()> {
                     .service(
                         web::scope("/rooms")
                             .route("", web::post().to(rooms::create))
+                            .route("", web::get().to(rooms::list))
                             .service(
                                 web::scope("/{room_path}")
                                     .route("/ws", web::get().to(ws::index))

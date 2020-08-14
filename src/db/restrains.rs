@@ -7,7 +7,6 @@ use crate::diesel::*;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
-
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Restrain {

@@ -8,7 +8,7 @@ use actix_identity::Identity;
 use actix_web::{web, HttpResponse};
 use serde::Deserialize;
 
-pub async fn get(pool: web::Data<db::DbPool>, id: Identity) -> Result<HttpResponse, ResponseError> {
+pub async fn get(pool: web::Data<db::DbPool>, id: Identity) -> super::RouteResult {
     let conn = pool.get().unwrap();
 
     if let Some(id) = id.identity() {
@@ -19,7 +19,7 @@ pub async fn get(pool: web::Data<db::DbPool>, id: Identity) -> Result<HttpRespon
     }
 }
 
-pub async fn log_out(id: Identity) -> Result<HttpResponse, ResponseError> {
+pub async fn log_out(id: Identity) -> super::RouteResult {
     id.forget();
     Ok(HttpResponse::Ok().finish())
 }
@@ -33,7 +33,7 @@ pub async fn sign_in_discord(
     pool: web::Data<db::DbPool>,
     info: web::Query<DiscordRedirect>,
     id: Identity,
-) -> Result<HttpResponse, ResponseError> {
+) -> super::RouteResult {
     let conn = pool.get().unwrap();
 
     let discord_user = super::auth::get_discord_user(info.code.clone())
@@ -75,7 +75,7 @@ pub async fn sign_in(
     pool: web::Data<db::DbPool>,
     form: web::Json<AuthForm>,
     id: Identity,
-) -> Result<HttpResponse, ResponseError> {
+) -> super::RouteResult {
     let conn = pool.get().unwrap();
 
     let user = db::User::by_name(&form.username.clone(), &conn)?;
@@ -104,7 +104,7 @@ pub async fn sign_up(
     pool: web::Data<db::DbPool>,
     form: web::Json<AuthForm>,
     id: Identity,
-) -> Result<HttpResponse, ResponseError> {
+) -> super::RouteResult {
     let conn = pool.get().unwrap();
 
     if !asserts::valid_username(&form.username) {
