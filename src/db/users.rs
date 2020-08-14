@@ -18,6 +18,7 @@ fn is_false(x: &bool) -> bool {
 #[serde(rename_all = "camelCase")]
 pub struct User {
     pub id: Uuid,
+    #[serde(skip_serializing)]
     pub discord_id: Option<String>,
     pub username: String,
 
