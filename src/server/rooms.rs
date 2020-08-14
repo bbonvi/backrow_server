@@ -15,7 +15,7 @@ pub async fn create(
     pool: web::Data<db::DbPool>,
     id: Identity,
     form: web::Json<CreateRoom>,
-) -> Result<HttpResponse, ResponseError> {
+) -> super::RouteResult {
     use crate::diesel::Connection;
 
     let id: String = match id.identity() {
@@ -69,4 +69,11 @@ pub async fn create(
     let room = room?;
 
     Ok(HttpResponse::Ok().json(room))
+}
+pub async fn list(pool: web::Data<db::DbPool>) -> super::RouteResult {
+    let conn = pool.get().unwrap();
+
+    let rooms = db::Room::list(&conn)?;
+
+    Ok(HttpResponse::Ok().json(rooms))
 }

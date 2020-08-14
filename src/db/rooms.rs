@@ -7,7 +7,6 @@ use crate::diesel::*;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
-
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Room {
@@ -56,6 +55,22 @@ impl Room {
             .first::<Room>(conn)
             .map_err(|err| {
                 error!("Couldn't query room by path {:?}: {}", path_query, err);
+                err
+            })
+            .map_err(From::from)
+    }
+
+    pub fn list(conn: &PgConnection) -> Result<std::vec::Vec<Room>, DieselError> {
+        use crate::schema::rooms::dsl::*;
+
+        // TODO: pagination
+        const LIMIT: i64 = 100;
+
+        rooms
+            .limit(LIMIT)
+            .load(conn)
+            .map_err(|err| {
+                error!("Couldn't query rooms: {}", err);
                 err
             })
             .map_err(From::from)
