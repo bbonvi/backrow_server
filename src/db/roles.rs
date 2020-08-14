@@ -1,5 +1,6 @@
 use super::DieselError;
 use crate::schema::roles;
+use crate::schema::user_roles;
 
 use diesel::backend::Backend;
 use diesel::deserialize::FromSql;
@@ -301,6 +302,117 @@ impl<'a> NewRole<'a> {
             .get_result::<Role>(conn)
             .map_err(|err| {
                 error!("Couldn't create role {:?}: {}", self, err);
+                err
+            })
+            .map_err(From::from)
+    }
+}
+
+#[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
+#[table_name = "user_roles"]
+#[serde(rename_all = "camelCase")]
+pub struct UserRole {
+    pub id: i32,
+    pub room_id: Uuid,
+    pub user_id: Uuid,
+    pub created_at: NaiveDateTime,
+}
+
+impl UserRole {
+    pub fn list_by_room_id(
+        room_id_query: Uuid,
+        conn: &PgConnection,
+    ) -> Result<UserRole, DieselError> {
+        use crate::schema::user_roles::dsl::*;
+
+        user_roles
+            .filter(room_id.eq(room_id_query))
+            .first::<UserRole>(conn)
+            .map_err(|err| {
+                error!(
+                    "Couldn't query user roles by room_id {:?}: {}",
+                    room_id_query, err
+                );
+                err
+            })
+            .map_err(From::from)
+    }
+
+    pub fn list_by_user_id_and_room_id(
+        room_id_query: Uuid,
+        user_id_query: Uuid,
+        conn: &PgConnection,
+    ) -> Result<UserRole, DieselError> {
+        use crate::schema::user_roles::dsl::*;
+
+        user_roles
+            .filter((room_id.eq(room_id_query), user_id.eq(user_id_query)))
+            .first::<UserRole>(conn)
+            .map_err(|err| {
+                error!(
+                    "Couldn't query user roles by room_id {:?}: {}",
+                    room_id_query, err
+                );
+                err
+            })
+            .map_err(From::from)
+    }
+
+    pub fn by_id(role_id: Uuid, conn: &PgConnection) -> Result<UserRole, DieselError> {
+        use crate::schema::user_roles::dsl::*;
+
+        user_roles
+            .filter(id.eq(role_id))
+            .first::<UserRole>(conn)
+            .map_err(|err| {
+                error!("Couldn't query user role by id {:?}: {}", role_id, err);
+                err
+            })
+            .map_err(From::from)
+    }
+
+    pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
+        use crate::schema::user_roles::dsl::*;
+
+        diesel::delete(user_roles.filter(id.eq(self.id)))
+            .execute(conn)
+            .map_err(|err| {
+                error!("Couldn't delete user role {:?}: {}", self, err);
+                err
+            })
+            .map_err(From::from)
+    }
+
+    pub fn update(&self, conn: &PgConnection) -> Result<UserRole, DieselError> {
+        use crate::schema::user_roles::dsl::*;
+
+        diesel::update(user_roles)
+            .set(self)
+            .get_result::<UserRole>(conn)
+            .map_err(|err| {
+                error!("Couldn't update user role {:?}: {}", self, err);
+                err
+            })
+            .map_err(From::from)
+    }
+}
+
+#[derive(AsChangeset, AsExpression, Insertable, Debug, Associations, Deserialize, Serialize)]
+#[table_name = "user_roles"]
+pub struct NewUserRole {
+    pub room_id: Uuid,
+    pub user_id: Uuid,
+}
+
+impl NewUserRole {
+    pub fn create(&self, conn: &PgConnection) -> Result<UserRole, DieselError> {
+        use crate::schema::user_roles::dsl::*;
+
+        diesel::insert_into(user_roles)
+            .values(self)
+            .get_result::<UserRole>(conn)
+            .map_err(|err| {
+                error!("Couldn't create user role {:?}: {}", self, err);
                 err
             })
             .map_err(From::from)

@@ -167,6 +167,15 @@ table! {
 }
 
 table! {
+    user_roles (id) {
+        id -> Int4,
+        room_id -> Uuid,
+        user_id -> Uuid,
+        created_at -> Timestamp,
+    }
+}
+
+table! {
     users (id) {
         id -> Uuid,
         discord_id -> Nullable<Varchar>,
@@ -215,6 +224,8 @@ joinable!(roles -> rooms (room_id));
 joinable!(room_channels -> channels (channel_id));
 joinable!(room_channels -> rooms (room_id));
 joinable!(subtitles -> files (file_id));
+joinable!(user_roles -> rooms (room_id));
+joinable!(user_roles -> users (user_id));
 joinable!(users -> files (file_id));
 joinable!(videos -> rooms (room_id));
 
@@ -232,6 +243,7 @@ allow_tables_to_appear_in_same_query!(
     room_channels,
     rooms,
     subtitles,
+    user_roles,
     users,
     videos,
 );
