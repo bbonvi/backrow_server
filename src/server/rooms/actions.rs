@@ -43,16 +43,18 @@ pub struct Info {
     room_path: String,
 }
 
-pub async fn change_title(info: Path<Info>, states: States, id: Identity) -> RouteResult {
+pub async fn list_user_roles(info: Path<Info>, states: States, id: Identity) -> RouteResult {
     let id: i64 = match id.identity() {
-        None => return Err(ResponseError::AccessError("Unauthorize")),
-        Some(id) => id.parse::<i64>().unwrap_or_default(),
+        None => -1,
+        Some(id) => id.parse::<i64>().unwrap_or(-1),
     };
+    let is_anon = id == -1;
+
     let conn = states.pool.get().unwrap();
 
     let room = db::Room::by_path(&info.room_path, &conn)?;
 
-    let roles = db::Role::list_user_roles_by_room_id(id, room.id, &conn)?;
+    let roles = db::helpers::list_user_roles_in_room(id, room.id, is_anon, &conn)?;
 
     Ok(HttpResponse::Ok().json(roles))
 }
