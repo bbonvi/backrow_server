@@ -3,7 +3,7 @@ use crate::diesel::prelude::PgConnection;
 use db::{Room, User};
 use serde_repr::*;
 
-#[derive(Deserialize_repr, Debug)]
+#[derive(Deserialize_repr, Debug, Clone)]
 #[repr(i8)]
 pub enum ActionType {
     ChangeTitle,
@@ -52,46 +52,46 @@ impl AssertPermission {
     }
 
     pub fn is_allowed(
-        &self,
+        self,
         action_type: ActionType,
         conn: &PgConnection,
     ) -> Result<bool, db::DieselError> {
-        let user_id = self.user.map(|u| u.id);
+        let user_id = self.user.map(|u| u.id.clone());
 
         // Get user roles sorted by `position`, which indicates role's priority.
-        let roles = db::helpers::list_user_roles_in_room(user_id, self.room.id, &conn)?;
+        let roles = db::helpers::list_user_roles_in_room(user_id, self.room.id.to_owned(), &conn)?;
 
         // Loop roles until find the one where PermissionState is not `unset`.
         // Eventually it will fallback on `everyone` role.
         for role in roles {
-            let permission = match action_type {
-                ChangeTitle => role.title_update,
-                ChangePath => role.path_update,
-                ChangePublic => role.public_update,
-                DeleteRoom => role.room_delete,
-                PasswordCreate => role.password_create,
-                PasswordUpdate => role.password_update,
-                PasswordDelete => role.password_delete,
-                EmoteCreate => role.emote_create,
-                EmoteUpdate => role.emote_update,
-                EmoteDelete => role.emote_delete,
-                RoleCreate => role.role_create,
-                RoleUpdate => role.role_update,
-                RoleDelete => role.role_delete,
-                VideoAdd => role.video_create,
-                VideoDelete => role.video_delete,
-                VideoMove => role.video_move,
-                PlayerPause => role.player_pause,
-                PlayerResume => role.player_resume,
-                PlayerRewind => role.player_rewind,
-                MessageCreate => role.message_create,
-                MessageRead => role.message_read,
-                MessageDelete => role.message_delete,
-                MessageHistory => role.message_history_read,
-                UserKick => role.user_kick,
-                UserBan => role.user_ban,
-                UserUnban => role.user_unban,
-                UserTimeout => role.user_timeout,
+            let permission = match &action_type {
+                ActionType::ChangeTitle => role.title_update,
+                ActionType::ChangePath => role.path_update,
+                ActionType::ChangePublic => role.public_update,
+                ActionType::DeleteRoom => role.room_delete,
+                ActionType::PasswordCreate => role.password_create,
+                ActionType::PasswordUpdate => role.password_update,
+                ActionType::PasswordDelete => role.password_delete,
+                ActionType::EmoteCreate => role.emote_create,
+                ActionType::EmoteUpdate => role.emote_update,
+                ActionType::EmoteDelete => role.emote_delete,
+                ActionType::RoleCreate => role.role_create,
+                ActionType::RoleUpdate => role.role_update,
+                ActionType::RoleDelete => role.role_delete,
+                ActionType::VideoAdd => role.video_create,
+                ActionType::VideoDelete => role.video_delete,
+                ActionType::VideoMove => role.video_move,
+                ActionType::PlayerPause => role.player_pause,
+                ActionType::PlayerResume => role.player_resume,
+                ActionType::PlayerRewind => role.player_rewind,
+                ActionType::MessageCreate => role.message_create,
+                ActionType::MessageRead => role.message_read,
+                ActionType::MessageDelete => role.message_delete,
+                ActionType::MessageHistory => role.message_history_read,
+                ActionType::UserKick => role.user_kick,
+                ActionType::UserBan => role.user_ban,
+                ActionType::UserUnban => role.user_unban,
+                ActionType::UserTimeout => role.user_timeout,
             };
 
             match permission {
