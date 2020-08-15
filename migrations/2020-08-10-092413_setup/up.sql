@@ -124,6 +124,7 @@ CREATE TABLE IF NOT EXISTS roles (
 
     message_create INTEGER NOT NULL DEFAULT -1,
     message_read INTEGER NOT NULL DEFAULT -1,
+    message_delete INTEGER NOT NULL DEFAULT -1,
     message_history_read INTEGER NOT NULL DEFAULT -1,
     message_timeout INTEGER NOT NULL DEFAULT -1,
 
