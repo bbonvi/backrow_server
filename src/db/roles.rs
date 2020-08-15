@@ -6,6 +6,10 @@ use crate::schema::user_roles;
 use diesel::sql_query;
 use std::vec::Vec;
 
+use super::vars::{
+    GENERIC_ROLE_ADMINISTRATOR, GENERIC_ROLE_ANONYMOUS, GENERIC_ROLE_EVERYONE, GENERIC_ROLE_OWNER,
+    GENERIC_ROLE_STRANGER,
+};
 use diesel::backend::Backend;
 use diesel::deserialize::FromSql;
 use diesel::serialize::ToSql;
@@ -132,7 +136,7 @@ pub struct Role {
     pub video_watch: PermissionState,
     /// permission to move videos in playlist
     pub video_move: PermissionState,
-    /// permission to embed iframe 
+    /// permission to embed iframe
     pub video_iframe: PermissionState,
     /// permission to add video by direct link
     pub video_raw: PermissionState,
@@ -194,6 +198,43 @@ impl Role {
             .map_err(From::from)
     }
 
+    pub fn list_generic_room_roles(
+        room_id_query: i64,
+        is_anon: bool,
+        conn: &PgConnection,
+    ) -> Result<Vec<Role>, DieselError> {
+        use crate::schema::roles::dsl::*;
+        use diesel::pg::Pg;
+
+        let with_rooms = self::roles::table
+            .into_boxed::<Pg>();
+
+        let list = if is_anon {
+            with_rooms.filter(
+                name.eq(GENERIC_ROLE_EVERYONE)
+                    .or(name.eq(GENERIC_ROLE_ANONYMOUS)),
+            )
+        } else {
+            with_rooms.filter(
+                name.eq(GENERIC_ROLE_EVERYONE)
+                    .or(name.eq(GENERIC_ROLE_STRANGER)),
+            )
+        };
+
+        list
+            .filter(room_id.eq(room_id_query))
+            .order(position.asc())
+            .load::<Role>(conn)
+            .map_err(|err| {
+                error!(
+                    "Couldn't query role by room_id {:?}: {}",
+                    room_id_query, err
+                );
+                err
+            })
+            .map_err(From::from)
+    }
+
     pub fn list_user_roles_by_room_id(
         user_id_query: i64,
         room_id_query: i64,
@@ -213,16 +254,15 @@ impl Role {
         .bind::<BigInt, _>(user_id_query);
         let debug = diesel::debug_query::<diesel::pg::Pg, _>(&q);
         info!("{}", debug);
-        q
-        .load::<Role>(conn)
-        .map_err(|err| {
-            error!(
-                "Couldn't query roles by room_id {:?} and user id {:?}: {}",
-                room_id_query, user_id_query, err
-            );
-            err
-        })
-        .map_err(From::from)
+        q.load::<Role>(conn)
+            .map_err(|err| {
+                error!(
+                    "Couldn't query roles by room_id {:?} and user id {:?}: {}",
+                    room_id_query, user_id_query, err
+                );
+                err
+            })
+            .map_err(From::from)
     }
 
     pub fn by_id(role_id: i64, conn: &PgConnection) -> Result<Role, DieselError> {
@@ -374,7 +414,7 @@ impl<'a> NewRole<'a> {
     pub fn owner(room_id: i64) -> NewRole<'a> {
         NewRole {
             room_id,
-            name: "Owner",
+            name: GENERIC_ROLE_OWNER,
 
             color: Some("#ff9200"),
             is_default: true,
@@ -426,7 +466,7 @@ impl<'a> NewRole<'a> {
     pub fn administator(room_id: i64) -> NewRole<'a> {
         NewRole {
             room_id,
-            name: "Administrator",
+            name: GENERIC_ROLE_ADMINISTRATOR,
 
             color: Some("#44bd82"),
             is_default: true,
@@ -443,7 +483,7 @@ impl<'a> NewRole<'a> {
     pub fn stranger(room_id: i64) -> NewRole<'a> {
         NewRole {
             room_id,
-            name: "Stranger",
+            name: GENERIC_ROLE_STRANGER,
 
             color: Some("#d8d8d8"),
             is_default: true,
@@ -462,7 +502,7 @@ impl<'a> NewRole<'a> {
     pub fn anonymous(room_id: i64) -> NewRole<'a> {
         NewRole {
             room_id,
-            name: "Stranger",
+            name: GENERIC_ROLE_ANONYMOUS,
 
             color: Some("#575757"),
             is_default: true,
@@ -476,7 +516,7 @@ impl<'a> NewRole<'a> {
     pub fn everyone(room_id: i64) -> NewRole<'a> {
         NewRole {
             room_id,
-            name: "Everyone",
+            name: GENERIC_ROLE_EVERYONE,
 
             color: Some("#8e8e8e"),
             is_default: true,

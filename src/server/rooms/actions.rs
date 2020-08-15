@@ -43,11 +43,7 @@ pub struct Info {
     room_path: String,
 }
 
-pub async fn change_title(
-    info: Path<Info>,
-    states: States,
-    id: Identity,
-) -> RouteResult {
+pub async fn change_title(info: Path<Info>, states: States, id: Identity) -> RouteResult {
     let id: i64 = match id.identity() {
         None => return Err(ResponseError::AccessError("Unauthorize")),
         Some(id) => id.parse::<i64>().unwrap_or_default(),

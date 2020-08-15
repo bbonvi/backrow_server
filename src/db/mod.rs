@@ -14,6 +14,7 @@ mod roles;
 mod rooms;
 mod users;
 mod videos;
+mod vars;
 
 pub use audit_logs::*;
 pub use channels::*;
