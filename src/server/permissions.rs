@@ -62,7 +62,7 @@ impl AssertPermission {
         let roles = db::helpers::list_user_roles_in_room(user_id, self.room.id.to_owned(), &conn)?;
 
         // Loop over roles until role with not `unset` permission is found.
-        // It'll fallback to everyone in the worst case.
+        // It'll fallback to `everyone` in the worst case.
         for role in roles {
             let permission = match &action_type {
                 ActionType::ChangeTitle => role.title_update,
