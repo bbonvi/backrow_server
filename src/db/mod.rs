@@ -13,8 +13,8 @@ mod restrains;
 mod roles;
 mod rooms;
 mod users;
-mod videos;
 mod vars;
+mod videos;
 
 pub use audit_logs::*;
 pub use channels::*;

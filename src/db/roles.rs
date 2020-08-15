@@ -69,7 +69,6 @@ where
 
 #[derive(
     AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone, QueryableByName,
-    Default,
 )]
 #[table_name = "roles"]
 #[serde(rename_all = "camelCase")]
@@ -209,8 +208,7 @@ impl Role {
         use crate::schema::roles::dsl::*;
         use diesel::pg::Pg;
 
-        let with_rooms = self::roles::table
-            .into_boxed::<Pg>();
+        let with_rooms = self::roles::table.into_boxed::<Pg>();
 
         let list = if is_anon {
             with_rooms.filter(
@@ -224,8 +222,7 @@ impl Role {
             )
         };
 
-        list
-            .filter(room_id.eq(room_id_query.clone()))
+        list.filter(room_id.eq(room_id_query.clone()))
             .order(position.asc())
             .load::<Role>(conn)
             .map_err(|err| {

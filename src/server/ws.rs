@@ -1,13 +1,13 @@
 use super::asserts;
 use super::States;
 use crate::db;
+use crate::server::errors::ResponseError;
 use actix::{Actor, StreamHandler};
 use actix_identity::Identity;
 use actix_web::web::{Path, Payload};
 use actix_web::HttpRequest;
 use actix_web_actors::ws;
 use serde::Deserialize;
-use crate::server::errors::ResponseError;
 
 struct WebSocket;
 
@@ -45,7 +45,7 @@ pub async fn index(
 
     let conn = states.pool.get().unwrap();
     let room_path = info.room_path.clone();
-    let _room = db::Room::by_path(&room_path, &conn)?;
+    let _room = db::Room::by_path(room_path, &conn)?;
 
     ws::start(WebSocket {}, &req, stream).map_err(From::from)
 }

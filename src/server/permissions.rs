@@ -61,8 +61,8 @@ impl AssertPermission {
         // Get user roles sorted by `position`, which indicates role's priority.
         let roles = db::helpers::list_user_roles_in_room(user_id, self.room.id.to_owned(), &conn)?;
 
-        // Loop roles until find the one where PermissionState is not `unset`.
-        // Eventually it will fallback on `everyone` role.
+        // Loop over roles until role with not `unset` permission is found.
+        // It'll fallback to everyone in the worst case.
         for role in roles {
             let permission = match &action_type {
                 ActionType::ChangeTitle => role.title_update,

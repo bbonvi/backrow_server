@@ -118,7 +118,10 @@ pub struct RoomChannel {
 
 // TODO: pagination
 impl RoomChannel {
-    pub fn by_room_id(room_id_query: String, conn: &PgConnection) -> Result<RoomChannel, DieselError> {
+    pub fn by_room_id(
+        room_id_query: String,
+        conn: &PgConnection,
+    ) -> Result<RoomChannel, DieselError> {
         use crate::schema::room_channels::dsl::*;
 
         room_channels

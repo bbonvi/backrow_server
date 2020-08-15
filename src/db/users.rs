@@ -79,7 +79,7 @@ impl User {
             .map_err(From::from)
     }
 
-    pub fn by_name(name: &str, conn: &PgConnection) -> Result<User, DieselError> {
+    pub fn by_name(name: String, conn: &PgConnection) -> Result<User, DieselError> {
         use crate::schema::users::dsl::*;
 
         users

@@ -78,7 +78,7 @@ pub struct AuthForm {
 pub async fn sign_in(states: States, form: Json<AuthForm>, id: Identity) -> RouteResult {
     let conn = states.pool.get().unwrap();
 
-    let user = db::User::by_name(&form.username.clone(), &conn)?;
+    let user = db::User::by_name(form.username.clone(), &conn)?;
     let password = user.password.clone();
 
     if password.is_none() {
@@ -115,7 +115,7 @@ pub async fn sign_up(states: States, form: Json<AuthForm>, id: Identity) -> Rout
         ));
     }
 
-    if db::User::by_name(&form.username, &conn).is_ok() {
+    if db::User::by_name(form.username.clone(), &conn).is_ok() {
         return Err(ResponseError::BadRequestMessage(
             "User with this name already exists",
         ));

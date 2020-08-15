@@ -445,6 +445,7 @@ dependencies = [
  "env_logger",
  "failure",
  "futures",
+ "futures-util",
  "lazy_static",
  "log",
  "num_cpus",

@@ -1,8 +1,8 @@
 use super::DieselError;
-use diesel::result::DatabaseErrorKind;
-use diesel::result::Error;
 use super::Role;
 use crate::diesel::prelude::PgConnection;
+use diesel::result::DatabaseErrorKind;
+use diesel::result::Error;
 
 /// Check whether or not DieselError is emited by unique constraint error
 pub fn is_unique_constraint_error(err: &DieselError) -> bool {
@@ -42,7 +42,7 @@ pub fn list_user_roles_in_room(
 
     let mut generic_room_roles = Role::list_generic_room_roles(room_id.clone(), is_anon, conn)?;
     if is_anon {
-        return Ok(generic_room_roles)
+        return Ok(generic_room_roles);
     }
     let user_id = user_id.unwrap();
 

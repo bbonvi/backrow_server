@@ -34,7 +34,7 @@ pub async fn create(states: States, id: Identity, form: Json<CreateRoom>) -> Rou
 
     let conn = states.pool.get().unwrap();
 
-    if db::Room::by_path(&form.path, &conn).is_ok() {
+    if db::Room::by_path(form.path.clone(), &conn).is_ok() {
         return Err(ResponseError::BadRequestMessage(
             "Room with this path already exists",
         ));
@@ -77,7 +77,7 @@ pub struct Info {
     room_path: String,
 }
 
-#[derive(Serialize)] 
+#[derive(Serialize)]
 pub struct RoomResponse {
     #[serde(flatten)]
     room: db::Room,
@@ -89,7 +89,7 @@ pub struct RoomResponse {
 pub async fn get(info: actix_web::web::Path<Info>, states: States, id: Identity) -> RouteResult {
     let conn = states.pool.get().unwrap();
 
-    let rooms = db::Room::by_path(&info.room_path, &conn)?;
+    let rooms = db::Room::by_path(info.room_path.clone(), &conn)?;
 
     Ok(HttpResponse::Ok().json(rooms))
 }
