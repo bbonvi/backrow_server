@@ -69,6 +69,7 @@ where
 
 #[derive(
     AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone, QueryableByName,
+    Default,
 )]
 #[table_name = "roles"]
 #[serde(rename_all = "camelCase")]

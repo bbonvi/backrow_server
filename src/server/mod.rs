@@ -2,15 +2,21 @@ extern crate num_cpus;
 
 use crate::db;
 use crate::env;
-use actix_identity::{CookieIdentityPolicy, IdentityService};
+use actix_identity::{CookieIdentityPolicy, IdentityService, Identity};
 use actix_web::middleware::errhandlers::{ErrorHandlerResponse, ErrorHandlers};
+use actix_identity::RequestIdentity;
+use actix_web::FromRequest;
 use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpResponse, HttpServer};
+use actix_service::Service;
+use futures::future::FutureExt;
+
 
 pub mod asserts;
 pub mod auth;
 pub mod errors;
 pub mod helpers;
+mod permissions;
 mod rooms;
 mod users;
 mod ws;
@@ -55,7 +61,10 @@ pub async fn run() -> std::io::Result<()> {
                                 web::scope("/{room_path}")
                                     .route("", web::get().to(rooms::get))
                                     .route("/ws", web::get().to(ws::index))
-                                    .route("/roles", web::get().to(rooms::actions::list_user_roles)),
+                                    .route(
+                                        "/roles",
+                                        web::get().to(rooms::actions::list_user_roles),
+                                    ),
                             )
                             .route("", web::get().to(HttpResponse::Ok)),
                     )

@@ -38,9 +38,12 @@ pub fn list_user_roles_in_room(
     is_anon: bool,
     conn: &PgConnection,
 ) -> Result<Vec<Role>, DieselError> {
-    let mut assigned_user_roles = Role::list_user_roles_by_room_id(user_id.clone(), room_id.clone(), conn)?;
     let mut generic_room_roles = Role::list_generic_room_roles(room_id.clone(), is_anon, conn)?;
+    if is_anon {
+        return Ok(generic_room_roles)
+    }
 
+    let mut assigned_user_roles = Role::list_user_roles_by_room_id(user_id, room_id, conn)?;
     assigned_user_roles.append(&mut generic_room_roles);
 
     Ok(assigned_user_roles)
