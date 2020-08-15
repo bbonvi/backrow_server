@@ -74,8 +74,8 @@ where
 #[serde(rename_all = "camelCase")]
 #[belongs_to(Room, foreign_key = "room_id")]
 pub struct Role {
-    pub id: i64,
-    pub room_id: i64,
+    pub id: String,
+    pub room_id: String,
     pub name: String,
     pub color: Option<String>,
 
@@ -176,7 +176,7 @@ pub struct Role {
 
 impl Role {
     pub fn list_by_room_id(
-        room_id_query: i64,
+        room_id_query: String,
         conn: &PgConnection,
     ) -> Result<Vec<Role>, DieselError> {
         use crate::schema::roles::dsl::*;
@@ -185,7 +185,7 @@ impl Role {
         const LIMIT: i64 = 100;
 
         roles
-            .filter(room_id.eq(room_id_query))
+            .filter(room_id.eq(room_id_query.clone()))
             .limit(LIMIT)
             .load::<Role>(conn)
             .map_err(|err| {
@@ -199,7 +199,7 @@ impl Role {
     }
 
     pub fn list_generic_room_roles(
-        room_id_query: i64,
+        room_id_query: String,
         is_anon: bool,
         conn: &PgConnection,
     ) -> Result<Vec<Role>, DieselError> {
@@ -222,7 +222,7 @@ impl Role {
         };
 
         list
-            .filter(room_id.eq(room_id_query))
+            .filter(room_id.eq(room_id_query.clone()))
             .order(position.asc())
             .load::<Role>(conn)
             .map_err(|err| {
@@ -236,8 +236,8 @@ impl Role {
     }
 
     pub fn list_user_roles_by_room_id(
-        user_id_query: i64,
-        room_id_query: i64,
+        user_id_query: String,
+        room_id_query: String,
         conn: &PgConnection,
     ) -> Result<Vec<Role>, DieselError> {
         // TODO: pagination
@@ -250,8 +250,8 @@ impl Role {
             AND EXISTS (SELECT * FROM user_roles AS ur WHERE r.id = ur.role_id AND ur.user_id = $2)
             ORDER BY position",
         )
-        .bind::<BigInt, _>(room_id_query)
-        .bind::<BigInt, _>(user_id_query);
+        .bind::<Text, _>(room_id_query.clone())
+        .bind::<Text, _>(user_id_query.clone());
 
         q.load::<Role>(conn)
             .map_err(|err| {
@@ -264,11 +264,11 @@ impl Role {
             .map_err(From::from)
     }
 
-    pub fn by_id(role_id: i64, conn: &PgConnection) -> Result<Role, DieselError> {
+    pub fn by_id(role_id: String, conn: &PgConnection) -> Result<Role, DieselError> {
         use crate::schema::roles::dsl::*;
 
         roles
-            .filter(id.eq(role_id))
+            .filter(id.eq(role_id.clone()))
             .first::<Role>(conn)
             .map_err(|err| {
                 error!("Couldn't query role by id {:?}: {}", role_id, err);
@@ -280,7 +280,7 @@ impl Role {
     pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::roles::dsl::*;
 
-        diesel::delete(roles.filter(id.eq(self.id)))
+        diesel::delete(roles.filter(id.eq(self.id.to_owned())))
             .execute(conn)
             .map_err(|err| {
                 error!("Couldn't delete role {:?}: {}", self, err);
@@ -309,7 +309,7 @@ impl Role {
 #[serde(rename_all = "camelCase")]
 pub struct NewRole<'a> {
     /// You should always explicitly specify `room_id`, never use default value
-    pub room_id: i64,
+    pub room_id: String,
     pub name: &'a str,
     pub color: Option<&'a str>,
     pub is_default: bool,
@@ -360,7 +360,7 @@ impl<'a> Default for NewRole<'a> {
     /// Never use default values!
     fn default() -> NewRole<'a> {
         NewRole {
-            room_id: i64::default(),
+            room_id: String::default(),
             name: "",
             color: None,
             is_default: false,
@@ -410,7 +410,7 @@ impl<'a> Default for NewRole<'a> {
 
 impl<'a> NewRole<'a> {
     /// Get Owner role
-    pub fn owner(room_id: i64) -> NewRole<'a> {
+    pub fn owner(room_id: String) -> NewRole<'a> {
         NewRole {
             room_id,
             name: GENERIC_ROLE_OWNER,
@@ -462,9 +462,9 @@ impl<'a> NewRole<'a> {
 
     /// Get Administator role.
     /// Just like Owner but can not delete the room
-    pub fn administator(room_id: i64) -> NewRole<'a> {
+    pub fn administator(room_id: String) -> NewRole<'a> {
         NewRole {
-            room_id,
+            room_id: room_id.clone(),
             name: GENERIC_ROLE_ADMINISTRATOR,
 
             color: Some("#44bd82"),
@@ -479,7 +479,7 @@ impl<'a> NewRole<'a> {
 
     /// Get Stranger role. (Someone who is authorized)
     /// Most of rules are inherited.
-    pub fn stranger(room_id: i64) -> NewRole<'a> {
+    pub fn stranger(room_id: String) -> NewRole<'a> {
         NewRole {
             room_id,
             name: GENERIC_ROLE_STRANGER,
@@ -498,7 +498,7 @@ impl<'a> NewRole<'a> {
 
     /// Get Anonymous role. (Someone who is unauthorized)
     /// All rules are inherited.
-    pub fn anonymous(room_id: i64) -> NewRole<'a> {
+    pub fn anonymous(room_id: String) -> NewRole<'a> {
         NewRole {
             room_id,
             name: GENERIC_ROLE_ANONYMOUS,
@@ -512,7 +512,7 @@ impl<'a> NewRole<'a> {
     }
 
     /// Get Everyone role.
-    pub fn everyone(room_id: i64) -> NewRole<'a> {
+    pub fn everyone(room_id: String) -> NewRole<'a> {
         NewRole {
             room_id,
             name: GENERIC_ROLE_EVERYONE,
@@ -582,18 +582,18 @@ impl<'a> NewRole<'a> {
 #[serde(rename_all = "camelCase")]
 #[belongs_to(Role, foreign_key = "role_id")]
 pub struct UserRole {
-    pub id: i64,
-    pub role_id: i64,
-    pub user_id: i64,
+    pub id: String,
+    pub role_id: String,
+    pub user_id: String,
     pub created_at: NaiveDateTime,
 }
 
 impl UserRole {
-    pub fn by_id(user_role_id: i64, conn: &PgConnection) -> Result<UserRole, DieselError> {
+    pub fn by_id(user_role_id: String, conn: &PgConnection) -> Result<UserRole, DieselError> {
         use crate::schema::user_roles::dsl::*;
 
         user_roles
-            .filter(id.eq(user_role_id))
+            .filter(id.eq(user_role_id.clone()))
             .first::<UserRole>(conn)
             .map_err(|err| {
                 error!("Couldn't query user role by id {:?}: {}", user_role_id, err);
@@ -605,7 +605,7 @@ impl UserRole {
     pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::user_roles::dsl::*;
 
-        diesel::delete(user_roles.filter(id.eq(self.id)))
+        diesel::delete(user_roles.filter(id.eq(self.id.to_owned())))
             .execute(conn)
             .map_err(|err| {
                 error!("Couldn't delete user role {:?}: {}", self, err);
@@ -631,8 +631,8 @@ impl UserRole {
 #[derive(AsChangeset, AsExpression, Insertable, Debug, Associations, Deserialize, Serialize)]
 #[table_name = "user_roles"]
 pub struct NewUserRole {
-    pub role_id: i64,
-    pub user_id: i64,
+    pub role_id: String,
+    pub user_id: String,
 }
 
 impl NewUserRole {

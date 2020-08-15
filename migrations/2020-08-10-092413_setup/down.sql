@@ -18,4 +18,3 @@ DROP TABLE files CASCADE;
 
 DROP EXTENSION IF EXISTS "uuid-ossp";
 DROP SEQUENCE IF EXISTS global_id_sequence;
-DROP FUNCTION IF EXISTS id_generator

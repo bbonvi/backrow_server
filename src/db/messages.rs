@@ -13,9 +13,9 @@ use serde::{Deserialize, Serialize};
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Message {
-    pub id: i64,
-    pub channel_id: i64,
-    pub user_id: i64,
+    pub id: String,
+    pub channel_id: String,
+    pub user_id: String,
     pub content: String,
     pub created_at: NaiveDateTime,
 }
@@ -23,14 +23,14 @@ pub struct Message {
 impl Message {
     // TODO: pagination
     pub fn list_by_channel_id(
-        message_channel_id: i64,
+        message_channel_id: String,
         conn: &PgConnection,
     ) -> Result<Vec<Message>, DieselError> {
         const LIMIT: i64 = 20;
         use crate::schema::messages::dsl::*;
 
         messages
-            .filter(channel_id.eq(message_channel_id))
+            .filter(channel_id.eq(message_channel_id.clone()))
             .limit(LIMIT)
             .load::<Message>(conn)
             .map_err(|err| {
@@ -44,15 +44,15 @@ impl Message {
     }
 
     pub fn list_by_room_id(
-        room_id_query: i64,
+        room_id_query: String,
         conn: &PgConnection,
     ) -> Result<Vec<Message>, DieselError> {
         use crate::schema::messages::dsl::*;
         const LIMIT: i64 = 20;
 
         conn.transaction(|| {
-            let room_channel = super::RoomChannel::by_room_id(room_id_query, conn)?;
-            let primary_channel = super::Channel::by_id(room_channel.channel_id, conn)?;
+            let room_channel = super::RoomChannel::by_room_id(room_id_query.clone(), conn)?;
+            let primary_channel = super::Channel::by_id(room_channel.channel_id.clone(), conn)?;
 
             messages
                 .filter(channel_id.eq(primary_channel.id))
@@ -72,7 +72,7 @@ impl Message {
     pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::messages::dsl::*;
 
-        diesel::delete(messages.filter(id.eq(self.id)))
+        diesel::delete(messages.filter(id.eq(self.id.to_owned())))
             .execute(conn)
             .map_err(|err| {
                 error!("Couldn't remove message {:?}: {}", self, err);
@@ -100,8 +100,8 @@ impl Message {
 // We only need camelCase for consistent debug output
 #[serde(rename_all = "camelCase")]
 pub struct NewMessage<'a> {
-    pub channel_id: i64,
-    pub user_id: i64,
+    pub channel_id: String,
+    pub user_id: String,
     pub content: &'a str,
 }
 
@@ -120,7 +120,7 @@ impl<'a> NewMessage<'a> {
         for user in mentioned_users {
             let mention_created = NewMessageMention {
                 user_id: user.id,
-                message_id: message_created.id,
+                message_id: message_created.id.clone(),
             }
             .create(conn)?;
 
@@ -164,16 +164,16 @@ impl<'a> NewMessage<'a> {
 #[serde(rename_all = "camelCase")]
 #[table_name = "message_mentions"]
 pub struct MessageMention {
-    pub id: i64,
-    pub user_id: i64,
-    pub message_id: i64,
+    pub id: String,
+    pub user_id: String,
+    pub message_id: String,
 }
 
 impl MessageMention {
     pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::message_mentions::dsl::*;
 
-        diesel::delete(message_mentions.filter(id.eq(self.id)))
+        diesel::delete(message_mentions.filter(id.eq(self.id.to_owned())))
             .execute(conn)
             .map_err(|err| {
                 error!("Couldn't remove message {:?}: {}", self, err);
@@ -188,8 +188,8 @@ impl MessageMention {
 // We only need camelCase for consistent debug output
 #[serde(rename_all = "camelCase")]
 pub struct NewMessageMention {
-    pub user_id: i64,
-    pub message_id: i64,
+    pub user_id: String,
+    pub message_id: String,
 }
 
 impl NewMessageMention {

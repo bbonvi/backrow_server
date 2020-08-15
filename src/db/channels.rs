@@ -22,7 +22,7 @@ use serde::{Deserialize, Serialize};
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Channel {
-    pub id: i64,
+    pub id: String,
     #[serde(skip_serializing)]
     pub deleted_at: Option<NaiveDateTime>,
     #[serde(skip_serializing)]
@@ -30,11 +30,11 @@ pub struct Channel {
 }
 
 impl Channel {
-    pub fn by_id(channel_id: i64, conn: &PgConnection) -> Result<Channel, DieselError> {
+    pub fn by_id(channel_id: String, conn: &PgConnection) -> Result<Channel, DieselError> {
         use crate::schema::channels::dsl::*;
 
         channels
-            .filter(id.eq(channel_id))
+            .filter(id.eq(channel_id.clone()))
             .first::<Channel>(conn)
             .map_err(|err| {
                 error!("Couldn't query channel by id {:?}: {}", channel_id, err);
@@ -46,7 +46,7 @@ impl Channel {
     pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::channels::dsl::*;
 
-        diesel::delete(channels.filter(id.eq(self.id)))
+        diesel::delete(channels.filter(id.eq(self.id.to_owned())))
             .execute(conn)
             .map_err(|err| {
                 error!("Couldn't remove channel {:?}: {}", self, err);
@@ -92,8 +92,8 @@ impl NewChannel {
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[table_name = "dm_channels"]
 pub struct DmChannel {
-    pub id: i64,
-    pub channel_id: i64,
+    pub id: String,
+    pub channel_id: String,
 }
 
 impl DmChannel {
@@ -111,18 +111,18 @@ impl NewDmChannel {
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[table_name = "room_channels"]
 pub struct RoomChannel {
-    pub id: i64,
-    pub channel_id: i64,
-    pub room_id: i64,
+    pub id: String,
+    pub channel_id: String,
+    pub room_id: String,
 }
 
 // TODO: pagination
 impl RoomChannel {
-    pub fn by_room_id(room_id_query: i64, conn: &PgConnection) -> Result<RoomChannel, DieselError> {
+    pub fn by_room_id(room_id_query: String, conn: &PgConnection) -> Result<RoomChannel, DieselError> {
         use crate::schema::room_channels::dsl::*;
 
         room_channels
-            .filter(room_id.eq(room_id_query))
+            .filter(room_id.eq(room_id_query.clone()))
             .first::<RoomChannel>(conn)
             .map_err(|err| {
                 error!(
@@ -134,11 +134,11 @@ impl RoomChannel {
             .map_err(From::from)
     }
 
-    pub fn by_id(room_channel_id: i64, conn: &PgConnection) -> Result<RoomChannel, DieselError> {
+    pub fn by_id(room_channel_id: String, conn: &PgConnection) -> Result<RoomChannel, DieselError> {
         use crate::schema::room_channels::dsl::*;
 
         room_channels
-            .filter(id.eq(room_channel_id))
+            .filter(id.eq(room_channel_id.clone()))
             .first::<RoomChannel>(conn)
             .map_err(|err| {
                 error!(
@@ -153,7 +153,7 @@ impl RoomChannel {
     pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::room_channels::dsl::*;
 
-        diesel::delete(room_channels.filter(id.eq(self.id)))
+        diesel::delete(room_channels.filter(id.eq(self.id.to_owned())))
             .execute(conn)
             .map_err(|err| {
                 error!("Couldn't remove room channel {:?}: {}", self, err);
@@ -179,8 +179,8 @@ impl RoomChannel {
 #[derive(AsChangeset, Insertable, AsExpression, Debug, Associations, Deserialize, Serialize)]
 #[table_name = "room_channels"]
 pub struct NewRoomChannel {
-    pub channel_id: Option<i64>,
-    pub room_id: i64,
+    pub channel_id: Option<String>,
+    pub room_id: String,
 }
 
 impl NewRoomChannel {
@@ -210,9 +210,9 @@ impl NewRoomChannel {
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[table_name = "dm_channel_users"]
 pub struct DmChannelUser {
-    pub id: i64,
-    pub user_id: i64,
-    pub dm_channel_id: i64,
+    pub id: String,
+    pub user_id: String,
+    pub dm_channel_id: String,
 }
 
 impl DmChannelUser {

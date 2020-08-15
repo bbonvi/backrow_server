@@ -10,18 +10,18 @@ use serde::{Deserialize, Serialize};
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct File {
-    pub id: i64,
+    pub id: String,
     pub hash: String,
     pub ext: String,
     pub created_at: NaiveDateTime,
 }
 
 impl File {
-    pub fn by_id(file_id: i64, conn: &PgConnection) -> Result<File, DieselError> {
+    pub fn by_id(file_id: String, conn: &PgConnection) -> Result<File, DieselError> {
         use crate::schema::files::dsl::*;
 
         files
-            .filter(id.eq(file_id))
+            .filter(id.eq(file_id.clone()))
             .first::<File>(conn)
             .map_err(|err| {
                 error!("Couldn't query file by id {:?}: {}", file_id, err);
@@ -33,7 +33,7 @@ impl File {
     pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::files::dsl::*;
 
-        diesel::delete(files.filter(id.eq(self.id)))
+        diesel::delete(files.filter(id.eq(self.id.to_owned())))
             .execute(conn)
             .map_err(|err| {
                 error!("Couldn't remove file {:?}: {}", self, err);

@@ -11,12 +11,12 @@ use serde::{Deserialize, Serialize};
 #[table_name = "emotes"]
 #[serde(rename_all = "camelCase")]
 pub struct Emote {
-    pub id: i64,
+    pub id: String,
     pub name: String,
 
     #[serde(skip_serializing)]
-    pub file_id: i64,
-    pub room_id: i64,
+    pub file_id: String,
+    pub room_id: String,
 
     #[serde(skip_serializing)]
     pub is_global: bool,
@@ -34,13 +34,13 @@ pub struct Emote {
 impl Emote {
     // TODO: paginations
     pub fn list_by_room_id(
-        room_id_query: i64,
+        room_id_query: String,
         conn: &PgConnection,
     ) -> Result<Vec<Emote>, DieselError> {
         use crate::schema::emotes::dsl::*;
 
         emotes
-            .filter(room_id.eq(room_id_query))
+            .filter(room_id.eq(room_id_query.clone()))
             .load::<Emote>(conn)
             .map_err(|err| {
                 error!(
@@ -52,11 +52,11 @@ impl Emote {
             .map_err(From::from)
     }
 
-    pub fn by_id(emote_id: i64, conn: &PgConnection) -> Result<Emote, DieselError> {
+    pub fn by_id(emote_id: String, conn: &PgConnection) -> Result<Emote, DieselError> {
         use crate::schema::emotes::dsl::*;
 
         emotes
-            .filter(id.eq(emote_id))
+            .filter(id.eq(emote_id.clone()))
             .first::<Emote>(conn)
             .map_err(|err| {
                 error!("Couldn't query emote by id {:?}: {}", emote_id, err);
@@ -68,7 +68,7 @@ impl Emote {
     pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::emotes::dsl::*;
 
-        diesel::delete(emotes.filter(id.eq(self.id)))
+        diesel::delete(emotes.filter(id.eq(self.id.to_owned())))
             .execute(conn)
             .map_err(|err| {
                 error!("Couldn't remove emote {:?}: {}", self, err);
@@ -97,8 +97,8 @@ impl Emote {
 #[serde(rename_all = "camelCase")]
 pub struct NewEmote<'a> {
     pub name: &'a str,
-    pub file_id: i64,
-    pub room_id: i64,
+    pub file_id: String,
+    pub room_id: String,
     pub is_global: bool,
     pub is_deleted: bool,
 }

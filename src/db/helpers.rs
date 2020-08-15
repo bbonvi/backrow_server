@@ -33,13 +33,13 @@ pub fn is_not_found_error(err: &DieselError) -> bool {
 }
 
 pub fn list_user_roles_in_room(
-    user_id: i64,
-    room_id: i64,
+    user_id: String,
+    room_id: String,
     is_anon: bool,
     conn: &PgConnection,
 ) -> Result<Vec<Role>, DieselError> {
-    let mut assigned_user_roles = Role::list_user_roles_by_room_id(user_id, room_id, conn)?;
-    let mut generic_room_roles = Role::list_generic_room_roles(room_id, is_anon, conn)?;
+    let mut assigned_user_roles = Role::list_user_roles_by_room_id(user_id.clone(), room_id.clone(), conn)?;
+    let mut generic_room_roles = Role::list_generic_room_roles(room_id.clone(), is_anon, conn)?;
 
     assigned_user_roles.append(&mut generic_room_roles);
 

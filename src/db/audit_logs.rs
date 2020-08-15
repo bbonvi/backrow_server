@@ -53,21 +53,21 @@ where
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct AuditLog {
-    pub id: i64,
+    pub id: String,
     pub kind: AuditLogKind,
-    pub user_id: i64,
-    pub room_id: i64,
+    pub user_id: String,
+    pub room_id: String,
     pub table_name: String,
     pub changes: String,
     pub created_at: NaiveDateTime,
 }
 
 impl AuditLog {
-    pub fn by_id(audit_log_id: i64, conn: &PgConnection) -> Result<AuditLog, DieselError> {
+    pub fn by_id(audit_log_id: String, conn: &PgConnection) -> Result<AuditLog, DieselError> {
         use crate::schema::audit_logs::dsl::*;
 
         audit_logs
-            .filter(id.eq(audit_log_id))
+            .filter(id.eq(audit_log_id.clone()))
             .first::<AuditLog>(conn)
             .map_err(|err| {
                 error!("Couldn't query audit_log by id {:?}: {}", audit_log_id, err);
@@ -77,7 +77,7 @@ impl AuditLog {
     }
 
     pub fn list_by_room_id(
-        room_id_query: i64,
+        room_id_query: String,
         conn: &PgConnection,
     ) -> Result<Vec<AuditLog>, DieselError> {
         use crate::schema::audit_logs::dsl::*;
@@ -86,7 +86,7 @@ impl AuditLog {
         const LIMIT: i64 = 20;
 
         audit_logs
-            .filter(room_id.eq(room_id_query))
+            .filter(room_id.eq(room_id_query.clone()))
             .limit(LIMIT)
             .load::<AuditLog>(conn)
             .map_err(|err| {
@@ -100,7 +100,7 @@ impl AuditLog {
     }
 
     pub fn list_by_user_id(
-        user_id_query: i64,
+        user_id_query: String,
         conn: &PgConnection,
     ) -> Result<Vec<AuditLog>, DieselError> {
         use crate::schema::audit_logs::dsl::*;
@@ -109,7 +109,7 @@ impl AuditLog {
         const LIMIT: i64 = 20;
 
         audit_logs
-            .filter(user_id.eq(user_id_query))
+            .filter(user_id.eq(user_id_query.clone()))
             .limit(LIMIT)
             .load::<AuditLog>(conn)
             .map_err(|err| {
@@ -125,7 +125,7 @@ impl AuditLog {
     pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::audit_logs::dsl::*;
 
-        diesel::delete(audit_logs.filter(id.eq(self.id)))
+        diesel::delete(audit_logs.filter(id.eq(self.id.to_owned())))
             .execute(conn)
             .map_err(|err| {
                 error!("Couldn't remove audit log {:?}: {}", self, err);
@@ -154,8 +154,8 @@ impl AuditLog {
 #[serde(rename_all = "camelCase")]
 pub struct NewAuditLog<'a> {
     pub kind: AuditLogKind,
-    pub user_id: i64,
-    pub room_id: i64,
+    pub user_id: String,
+    pub room_id: String,
     pub table_name: &'a str,
     pub changes: &'a str,
     pub created_at: NaiveDateTime,
