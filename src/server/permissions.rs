@@ -40,6 +40,12 @@ pub struct AssertPermission {
     room: Room,
 }
 
+impl User {
+    pub fn assert_permission(user: Option<User>, room: Room) -> AssertPermission {
+        AssertPermission { user, room }
+    }
+}
+
 impl AssertPermission {
     pub fn new(user: Option<User>, room: Room) -> AssertPermission {
         AssertPermission { user, room }
@@ -50,15 +56,10 @@ impl AssertPermission {
         action_type: ActionType,
         conn: &PgConnection,
     ) -> Result<bool, db::DieselError> {
-        let user_id = match self.user {
-            Some(user) => user.id,
-            None => String::new(),
-        };
+        let user_id = self.user.map(|u| u.id);
 
-        let is_anon = user_id.is_empty();
-
-        // Get user roles sorted by `position`, which indicates role priority.
-        let roles = db::helpers::list_user_roles_in_room(user_id, self.room.id, is_anon, &conn)?;
+        // Get user roles sorted by `position`, which indicates role's priority.
+        let roles = db::helpers::list_user_roles_in_room(user_id, self.room.id, &conn)?;
 
         // Loop roles until find the one where PermissionState is not `unset`.
         // Eventually it will fallback on `everyone` role.

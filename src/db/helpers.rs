@@ -32,17 +32,21 @@ pub fn is_not_found_error(err: &DieselError) -> bool {
     false
 }
 
+/// user_id is None if user is anonymous
 pub fn list_user_roles_in_room(
-    user_id: String,
+    user_id: Option<String>,
     room_id: String,
-    is_anon: bool,
     conn: &PgConnection,
 ) -> Result<Vec<Role>, DieselError> {
+    let is_anon = user_id.is_none();
+
     let mut generic_room_roles = Role::list_generic_room_roles(room_id.clone(), is_anon, conn)?;
     if is_anon {
         return Ok(generic_room_roles)
     }
+    let user_id = user_id.unwrap();
 
+    // If not anonymous, search for user roles and append them before generic roles.
     let mut assigned_user_roles = Role::list_user_roles_by_room_id(user_id, room_id, conn)?;
     assigned_user_roles.append(&mut generic_room_roles);
 
