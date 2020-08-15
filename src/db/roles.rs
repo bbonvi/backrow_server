@@ -252,8 +252,7 @@ impl Role {
         )
         .bind::<BigInt, _>(room_id_query)
         .bind::<BigInt, _>(user_id_query);
-        let debug = diesel::debug_query::<diesel::pg::Pg, _>(&q);
-        info!("{}", debug);
+
         q.load::<Role>(conn)
             .map_err(|err| {
                 error!(
