@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Room {
-    pub id: i64,
+    pub id: String,
     pub title: String,
     pub path: String,
 
@@ -34,11 +34,11 @@ pub struct Room {
 }
 
 impl Room {
-    pub fn by_id(room_id: i64, conn: &PgConnection) -> Result<Room, DieselError> {
+    pub fn by_id(room_id: String, conn: &PgConnection) -> Result<Room, DieselError> {
         use crate::schema::rooms::dsl::*;
 
         rooms
-            .filter(id.eq(room_id))
+            .filter(id.eq(room_id.clone()))
             .first::<Room>(conn)
             .map_err(|err| {
                 error!("Couldn't query room by id {:?}: {}", room_id, err);
@@ -51,7 +51,7 @@ impl Room {
         use crate::schema::rooms::dsl::*;
 
         rooms
-            .filter(path.eq(path_query))
+            .filter(path.eq(path_query.clone()))
             .first::<Room>(conn)
             .map_err(|err| {
                 error!("Couldn't query room by path {:?}: {}", path_query, err);
@@ -79,7 +79,7 @@ impl Room {
     pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::rooms::dsl::*;
 
-        diesel::delete(rooms.filter(id.eq(self.id)))
+        diesel::delete(rooms.filter(id.eq(self.id.to_owned())))
             .execute(conn)
             .map_err(|err| {
                 error!("Couldn't remove room {:?}: {}", self, err);

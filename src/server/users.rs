@@ -16,7 +16,7 @@ pub async fn get(states: States, id: Identity) -> RouteResult {
 
     // TODO: handle anonymous users
     if let Some(id) = id.identity() {
-        let user = db::User::by_id(id.parse::<i64>().unwrap_or_default(), &conn)?;
+        let user = db::User::by_id(id, &conn)?;
         Ok(HttpResponse::Ok().json(user))
     } else {
         Ok(HttpResponse::Ok().finish())

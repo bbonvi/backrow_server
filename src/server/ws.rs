@@ -7,6 +7,7 @@ use actix_web::web::{Path, Payload};
 use actix_web::HttpRequest;
 use actix_web_actors::ws;
 use serde::Deserialize;
+use crate::server::errors::ResponseError;
 
 struct WebSocket;
 

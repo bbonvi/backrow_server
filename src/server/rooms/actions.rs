@@ -7,11 +7,11 @@ use actix_identity::Identity;
 use actix_web::web::{Json, Path};
 use actix_web::HttpResponse;
 use serde::Deserialize;
+use serde_repr::*;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize_repr, Debug)]
+#[repr(i8)]
 enum ActionType {
-    // TODO: probably need to move somewhere else
-    Message = 0,
     ChangeTitle,
     ChangePath,
     ChangePublic,
@@ -31,6 +31,14 @@ enum ActionType {
     PlayerPause,
     PlayerResume,
     PlayerRewind,
+    MessageCreate,
+    MessageRead,
+    MessageDelete,
+    MessageHistory,
+    UserKick,
+    UserBan,
+    UserUnban,
+    UserTimeout,
 }
 
 #[derive(Deserialize, Debug)]
@@ -44,11 +52,11 @@ pub struct Info {
 }
 
 pub async fn list_user_roles(info: Path<Info>, states: States, id: Identity) -> RouteResult {
-    let id: i64 = match id.identity() {
-        None => -1,
-        Some(id) => id.parse::<i64>().unwrap_or(-1),
+    let id: String = match id.identity() {
+        None => String::new(),
+        Some(id) => id,
     };
-    let is_anon = id == -1;
+    let is_anon = id.is_empty();
 
     let conn = states.pool.get().unwrap();
 

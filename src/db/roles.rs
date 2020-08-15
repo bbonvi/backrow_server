@@ -157,6 +157,8 @@ pub struct Role {
     pub message_create: PermissionState,
     /// permission to read messages
     pub message_read: PermissionState,
+    /// permission to delete messages
+    pub message_delete: PermissionState,
     /// permission to read messages history
     pub message_history_read: PermissionState,
     /// timeout between messages
@@ -347,6 +349,7 @@ pub struct NewRole<'a> {
     pub subtitles_embed: PermissionState,
     pub message_create: PermissionState,
     pub message_read: PermissionState,
+    pub message_delete: PermissionState,
     pub message_history_read: PermissionState,
     pub message_timeout: i32,
     pub user_kick: PermissionState,
@@ -398,6 +401,7 @@ impl<'a> Default for NewRole<'a> {
             subtitles_embed: PermissionState::Unset,
             message_create: PermissionState::Unset,
             message_read: PermissionState::Unset,
+            message_delete: PermissionState::Unset,
             message_history_read: PermissionState::Unset,
             message_timeout: -1,
             user_kick: PermissionState::Unset,
@@ -451,6 +455,7 @@ impl<'a> NewRole<'a> {
             subtitles_embed: PermissionState::Allowed,
             message_create: PermissionState::Allowed,
             message_read: PermissionState::Allowed,
+            message_delete: PermissionState::Allowed,
             message_history_read: PermissionState::Allowed,
             message_timeout: 0,
             user_kick: PermissionState::Allowed,
@@ -554,6 +559,7 @@ impl<'a> NewRole<'a> {
             subtitles_embed: PermissionState::Forbidden,
             message_create: PermissionState::Allowed,
             message_read: PermissionState::Allowed,
+            message_delete: PermissionState::Forbidden,
             message_history_read: PermissionState::Allowed,
             message_timeout: 1,
             user_kick: PermissionState::Forbidden,

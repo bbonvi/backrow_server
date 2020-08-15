@@ -12,14 +12,14 @@ use serde::{Deserialize, Serialize};
 #[derive(AsChangeset, Associations, Queryable, Debug, Identifiable, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Video {
-    pub id: i64,
-    pub room_id: i64,
+    pub id: String,
+    pub room_id: String,
 
     #[serde(skip_serializing)]
-    pub subtitles_id: Option<i64>,
+    pub subtitles_id: Option<String>,
 
     #[serde(skip_serializing)]
-    pub file_id: Option<i64>,
+    pub file_id: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
@@ -38,13 +38,13 @@ pub struct Video {
 
 impl Video {
     pub fn list_by_room_id(
-        room_id_query: i64,
+        room_id_query: String,
         conn: &PgConnection,
     ) -> Result<Vec<Video>, DieselError> {
         use crate::schema::videos::dsl::*;
 
         videos
-            .filter(room_id.eq(room_id_query))
+            .filter(room_id.eq(room_id_query.clone()))
             .load::<Video>(conn)
             .map_err(|err| {
                 error!(
@@ -56,11 +56,11 @@ impl Video {
             .map_err(From::from)
     }
 
-    pub fn by_id(video_id: i64, conn: &PgConnection) -> Result<Video, DieselError> {
+    pub fn by_id(video_id: String, conn: &PgConnection) -> Result<Video, DieselError> {
         use crate::schema::videos::dsl::*;
 
         videos
-            .filter(id.eq(video_id))
+            .filter(id.eq(video_id.clone()))
             .first::<Video>(conn)
             .map_err(|err| {
                 error!("Couldn't query video by id {:?}: {}", video_id, err);
@@ -70,12 +70,12 @@ impl Video {
     }
 
     pub fn delete_all_by_room_id(
-        room_id_query: i64,
+        room_id_query: String,
         conn: &PgConnection,
     ) -> Result<usize, DieselError> {
         use crate::schema::videos::dsl::*;
 
-        let target = videos.filter(room_id.eq(room_id_query));
+        let target = videos.filter(room_id.eq(room_id_query.clone()));
 
         diesel::delete(target)
             .execute(conn)
@@ -92,7 +92,7 @@ impl Video {
     pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::videos::dsl::*;
 
-        diesel::delete(videos.filter(id.eq(self.id)))
+        diesel::delete(videos.filter(id.eq(self.id.to_owned())))
             .execute(conn)
             .map_err(|err| {
                 error!("Couldn't delete video {:?}: {}", self, err);
@@ -106,9 +106,9 @@ impl Video {
 #[table_name = "videos"]
 #[serde(rename_all = "camelCase")]
 pub struct NewVideo {
-    pub room_id: i64,
-    pub subtitles_id: Option<i64>,
-    pub file_id: Option<i64>,
+    pub room_id: String,
+    pub subtitles_id: Option<String>,
+    pub file_id: Option<String>,
     pub url: Option<String>,
     pub title: Option<String>,
     pub duration: Option<i32>,
@@ -152,17 +152,17 @@ impl NewVideo {
 #[serde(rename_all = "camelCase")]
 #[table_name = "subtitles"]
 pub struct Subtitles {
-    pub id: i64,
-    pub file_id: i64,
+    pub id: String,
+    pub file_id: String,
     pub url: Option<String>,
 }
 
 impl Subtitles {
-    pub fn by_id(subtitles_id: i64, conn: &PgConnection) -> Result<Subtitles, DieselError> {
+    pub fn by_id(subtitles_id: String, conn: &PgConnection) -> Result<Subtitles, DieselError> {
         use crate::schema::subtitles::dsl::*;
 
         subtitles
-            .filter(id.eq(subtitles_id))
+            .filter(id.eq(subtitles_id.clone()))
             .first::<Subtitles>(conn)
             .map_err(|err| {
                 error!("Couldn't query subtitles by id {:?}: {}", subtitles_id, err);
@@ -172,8 +172,9 @@ impl Subtitles {
     }
     pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::subtitles::dsl::*;
+        let query_id = self.id.to_owned();
 
-        diesel::delete(subtitles.filter(id.eq(self.id)))
+        diesel::delete(subtitles.filter(id.eq(query_id)))
             .execute(conn)
             .map_err(|err| {
                 error!("Couldn't delete subtitles {:?}: {}", self, err);
@@ -187,7 +188,7 @@ impl Subtitles {
 #[table_name = "subtitles"]
 #[serde(rename_all = "camelCase")]
 pub struct NewSubtitles {
-    pub file_id: i64,
+    pub file_id: String,
     pub url: Option<String>,
 }
 

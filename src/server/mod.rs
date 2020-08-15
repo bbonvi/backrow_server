@@ -53,6 +53,7 @@ pub async fn run() -> std::io::Result<()> {
                             .route("", web::get().to(rooms::list))
                             .service(
                                 web::scope("/{room_path}")
+                                    .route("", web::get().to(rooms::get))
                                     .route("/ws", web::get().to(ws::index))
                                     .route("/roles", web::get().to(rooms::actions::list_user_roles)),
                             )
@@ -68,7 +69,6 @@ pub async fn run() -> std::io::Result<()> {
                     ),
             )
     })
-    .workers(num_cpus::get() * 2)
     .bind(addr)?
     .run()
     .await

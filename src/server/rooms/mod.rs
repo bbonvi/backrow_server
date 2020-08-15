@@ -6,7 +6,7 @@ use crate::server::errors::ResponseError;
 use actix_identity::Identity;
 use actix_web::web::Json;
 use actix_web::HttpResponse;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub mod actions;
 
@@ -19,9 +19,9 @@ pub struct CreateRoom {
 pub async fn create(states: States, id: Identity, form: Json<CreateRoom>) -> RouteResult {
     use crate::diesel::Connection;
 
-    let id: i64 = match id.identity() {
+    let id: String = match id.identity() {
         None => return Err(ResponseError::AccessError("Unauthorize")),
-        Some(id) => id.parse::<i64>().unwrap_or_default(),
+        Some(id) => id,
     };
 
     if !asserts::valid_room_name(&form.title) {
@@ -51,11 +51,11 @@ pub async fn create(states: States, id: Identity, form: Json<CreateRoom>) -> Rou
         .create(&conn)?;
 
         // initialize default roles.
-        let _ = db::NewRole::everyone(room.id).create(&conn)?;
-        let _ = db::NewRole::anonymous(room.id).create(&conn)?;
-        let _ = db::NewRole::stranger(room.id).create(&conn)?;
-        let _ = db::NewRole::administator(room.id).create(&conn)?;
-        let owner_role = db::NewRole::owner(room.id).create(&conn)?;
+        let _ = db::NewRole::everyone(room.id.clone()).create(&conn)?;
+        let _ = db::NewRole::anonymous(room.id.clone()).create(&conn)?;
+        let _ = db::NewRole::stranger(room.id.clone()).create(&conn)?;
+        let _ = db::NewRole::administator(room.id.clone()).create(&conn)?;
+        let owner_role = db::NewRole::owner(room.id.clone()).create(&conn)?;
 
         // assign owner role to user
         let _ = db::NewUserRole {
@@ -70,6 +70,28 @@ pub async fn create(states: States, id: Identity, form: Json<CreateRoom>) -> Rou
     let room = room?;
 
     Ok(HttpResponse::Ok().json(room))
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Info {
+    room_path: String,
+}
+
+#[derive(Serialize)] 
+pub struct RoomResponse {
+    #[serde(flatten)]
+    room: db::Room,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    playing: Option<String>,
+    online: i32,
+}
+
+pub async fn get(info: actix_web::web::Path<Info>, states: States, id: Identity) -> RouteResult {
+    let conn = states.pool.get().unwrap();
+
+    let rooms = db::Room::by_path(&info.room_path, &conn)?;
+
+    Ok(HttpResponse::Ok().json(rooms))
 }
 
 // TODO: pagination

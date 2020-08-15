@@ -16,7 +16,7 @@ fn is_false(x: &bool) -> bool {
 #[table_name = "users"]
 #[serde(rename_all = "camelCase")]
 pub struct User {
-    pub id: i64,
+    pub id: String,
     #[serde(skip_serializing)]
     pub discord_id: Option<String>,
     pub username: String,
@@ -34,7 +34,7 @@ pub struct User {
     pub color: Option<String>,
 
     #[serde(skip_serializing)]
-    pub file_id: Option<i64>,
+    pub file_id: Option<String>,
 
     #[serde(skip_serializing_if = "is_false")]
     pub is_admin: bool,
@@ -48,11 +48,11 @@ pub struct User {
 }
 
 impl User {
-    pub fn by_id(user_id: i64, conn: &PgConnection) -> Result<User, DieselError> {
+    pub fn by_id(user_id: String, conn: &PgConnection) -> Result<User, DieselError> {
         use crate::schema::users::dsl::*;
 
         users
-            .filter(id.eq(user_id))
+            .filter(id.eq(user_id.clone()))
             .first::<User>(conn)
             .map_err(|err| {
                 error!("Couldn't query user by id {:?}: {}", user_id, err);
@@ -83,7 +83,7 @@ impl User {
         use crate::schema::users::dsl::*;
 
         users
-            .filter(username.eq(name))
+            .filter(username.eq(name.clone()))
             .first::<User>(conn)
             .map_err(|err| {
                 error!("Couldn't query user by name {:?}: {}", name, err);
@@ -95,7 +95,7 @@ impl User {
     pub fn delete(&self, conn: &PgConnection) -> Result<usize, DieselError> {
         use crate::schema::users::dsl::*;
 
-        diesel::delete(users.filter(id.eq(self.id)))
+        diesel::delete(users.filter(id.eq(self.id.to_owned())))
             .execute(conn)
             .map_err(|err| {
                 error!("Couldn't remove user {:?}: {}", self, err);
@@ -130,7 +130,7 @@ pub struct NewUser<'a> {
     #[serde(skip_serializing)]
     pub password: Option<String>,
     pub color: Option<String>,
-    pub file_id: Option<i64>,
+    pub file_id: Option<String>,
 }
 
 impl<'a> Default for NewUser<'a> {
