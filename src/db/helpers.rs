@@ -32,6 +32,17 @@ pub fn is_not_found_error(err: &DieselError) -> bool {
     false
 }
 
+pub fn get_highest_user_role(
+    user_id: Option<String>,
+    room_id: String,
+    conn: &PgConnection,
+) -> Result<Role, DieselError> {
+    let list = list_user_roles_in_room(user_id, room_id, conn)?;
+    // There will always be at least one role
+    let first = list.first().unwrap().to_owned();
+    Ok(first)
+}
+
 /// user_id is None if user is anonymous
 pub fn list_user_roles_in_room(
     user_id: Option<String>,
@@ -41,14 +52,12 @@ pub fn list_user_roles_in_room(
     let is_anon = user_id.is_none();
 
     let mut generic_room_roles = Role::list_generic_room_roles(room_id.clone(), is_anon, conn)?;
-    if is_anon {
-        return Ok(generic_room_roles);
+    match user_id {
+        Some(id) => {
+            let mut assigned_user_roles = Role::list_user_roles_by_room_id(id, room_id, conn)?;
+            assigned_user_roles.append(&mut generic_room_roles);
+            Ok(assigned_user_roles)
+        }
+        None => Ok(generic_room_roles),
     }
-    let user_id = user_id.unwrap();
-
-    // If not anonymous, search for user roles and append them before generic roles.
-    let mut assigned_user_roles = Role::list_user_roles_by_room_id(user_id, room_id, conn)?;
-    assigned_user_roles.append(&mut generic_room_roles);
-
-    Ok(assigned_user_roles)
 }
