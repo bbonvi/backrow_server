@@ -1,5 +1,6 @@
 use super::RouteResult;
 use super::States;
+use crate::server::errors::ResponseError;
 use crate::db;
 use crate::db::{Role, Room, User};
 use crate::server::permissions::{ActionType, AssertPermission};
@@ -18,7 +19,6 @@ type Info = Path<Url>;
 pub async fn list_user_roles(
     info: Info,
     states: States,
-    id: Identity,
     user: Option<User>,
 ) -> RouteResult {
     let user_id = user.map(|u| u.id);
@@ -26,6 +26,34 @@ pub async fn list_user_roles(
 
     let room = db::Room::by_path(info.room_path.clone(), &conn)?;
     let roles = db::helpers::list_user_roles_in_room(user_id, room.id, &conn)?;
+    
+
+    Ok(HttpResponse::Ok().json(roles))
+}
+
+pub async fn list_room_roles(
+    info: Info,
+    states: States,
+    user: Option<User>,
+) -> RouteResult {
+    let conn = states.pool.get().unwrap();
+
+    let room = db::Room::by_path(info.room_path.clone(), &conn)?;
+
+    match user {
+        Some(u) => {
+            if !u.is_allowed(&room, ActionType::RoleCreate, &conn)? {
+                return Err(ResponseError::AccessError("Not allowed to view roles"))
+            }
+        }
+        None => {
+            if !db::User::is_anonymous_allowed(&room, ActionType::RoleCreate, &conn)? {
+                return Err(ResponseError::AccessError("Not allowed to view roles"))
+            }
+        }
+    }
+
+    let roles = db::Role::list_by_room_id(room.id, &conn)?;
 
     Ok(HttpResponse::Ok().json(roles))
 }
@@ -39,13 +67,20 @@ pub async fn create_role(
     info: Info,
     json: Json<CreateRole>,
     states: States,
-    id: Identity,
+    user: User,
 ) -> RouteResult {
-    let user_id = id.identity();
+    let user_id = user.id.to_owned();
     let conn = states.pool.get().unwrap();
 
-    let room = db::Room::by_path(info.room_path.clone(), &conn)?;
-    let roles = db::helpers::list_user_roles_in_room(user_id, room.id, &conn)?;
+    let role_name = json.name.to_owned();
 
-    Ok(HttpResponse::Ok().json(roles))
+    let room = db::Room::by_path(info.room_path.clone(), &conn)?;
+    if !user.is_allowed(&room, ActionType::RoleCreate, &conn)? {
+        return Err(ResponseError::AccessError("Not allowed to create role"))
+    }
+
+    let roles = db::helpers::list_user_roles_in_room(Some(user_id), room.id.clone(), &conn)?;
+    let role = db::NewRole::new(&role_name, &room.id).create(&conn)?;
+
+    Ok(HttpResponse::Ok().json(role))
 }

@@ -57,10 +57,12 @@ pub async fn run() -> std::io::Result<()> {
                                 web::scope("/{room_path}")
                                     .route("", web::get().to(rooms::get))
                                     .route("/ws", web::get().to(ws::index))
-                                    .route(
-                                        "/roles",
-                                        web::get().to(rooms::actions::list_user_roles),
-                                    ),
+                                    .service(
+                                        web::scope("/roles")
+                                            .route("/my", web::get().to(rooms::actions::list_user_roles))
+                                            .route("", web::get().to(rooms::actions::list_room_roles))
+                                            .route("", web::post().to(rooms::actions::create_role))
+                                    )
                             )
                             .route("", web::get().to(HttpResponse::Ok)),
                     )

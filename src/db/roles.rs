@@ -77,6 +77,7 @@ pub struct Role {
     pub id: String,
     pub room_id: String,
     pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub color: Option<String>,
 
     /// whether or not role was generated upon room creation
@@ -189,6 +190,7 @@ impl Role {
         roles
             .filter(room_id.eq(room_id_query.clone()))
             .limit(LIMIT)
+            .order(position.asc())
             .load::<Role>(conn)
             .map_err(|err| {
                 error!(
@@ -307,11 +309,11 @@ impl Role {
 #[table_name = "roles"]
 // We only need camelCase for consistent debug output
 #[serde(rename_all = "camelCase")]
-pub struct NewRole<'a> {
+pub struct NewRole {
     /// You should always explicitly specify `room_id`, never use default value
     pub room_id: String,
-    pub name: &'a str,
-    pub color: Option<&'a str>,
+    pub name: String,
+    pub color: Option<String>,
     pub is_default: bool,
     pub position: i32,
     pub title_update: PermissionState,
@@ -356,13 +358,13 @@ pub struct NewRole<'a> {
     pub user_timeout: PermissionState,
 }
 
-impl<'a> Default for NewRole<'a> {
+impl Default for NewRole {
     /// `room_id` and `name` should always be specified.
     /// Never use default values!
-    fn default() -> NewRole<'a> {
+    fn default() -> NewRole {
         NewRole {
             room_id: String::default(),
-            name: "",
+            name: String::from(""),
             color: None,
             is_default: false,
             position: 999,
@@ -410,14 +412,23 @@ impl<'a> Default for NewRole<'a> {
     }
 }
 
-impl<'a> NewRole<'a> {
+impl NewRole {
+    /// Get basic template with name and room_id
+    pub fn new(name: &str, room_id: &str) -> NewRole {
+        NewRole {
+            room_id: String::from(room_id),
+            name: String::from(name),
+            ..Default::default()
+        }
+    }
+
     /// Get Owner role
-    pub fn owner(room_id: String) -> NewRole<'a> {
+    pub fn owner(room_id: String) -> NewRole {
         NewRole {
             room_id,
-            name: GENERIC_ROLE_OWNER,
+            name: String::from(GENERIC_ROLE_OWNER),
 
-            color: Some("#ff9200"),
+            color: Some(String::from("#ff9200")),
             is_default: true,
             position: 0,
             title_update: PermissionState::Allowed,
@@ -465,12 +476,12 @@ impl<'a> NewRole<'a> {
 
     /// Get Administator role.
     /// Just like Owner but can not delete the room
-    pub fn administator(room_id: String) -> NewRole<'a> {
+    pub fn administator(room_id: String) -> NewRole {
         NewRole {
             room_id: room_id.clone(),
-            name: GENERIC_ROLE_ADMINISTRATOR,
+            name: String::from(GENERIC_ROLE_ADMINISTRATOR),
 
-            color: Some("#44bd82"),
+            color: Some(String::from("#44bd82")),
             is_default: true,
             position: 1,
 
@@ -482,12 +493,12 @@ impl<'a> NewRole<'a> {
 
     /// Get Stranger role. (Someone who is authorized)
     /// Most of rules are inherited.
-    pub fn stranger(room_id: String) -> NewRole<'a> {
+    pub fn stranger(room_id: String) -> NewRole {
         NewRole {
             room_id,
-            name: GENERIC_ROLE_STRANGER,
+            name: String::from(GENERIC_ROLE_STRANGER),
 
-            color: Some("#d8d8d8"),
+            color: Some(String::from("#d8d8d8")),
             is_default: true,
             position: 1001,
 
@@ -501,12 +512,12 @@ impl<'a> NewRole<'a> {
 
     /// Get Anonymous role. (Someone who is unauthorized)
     /// All rules are inherited.
-    pub fn anonymous(room_id: String) -> NewRole<'a> {
+    pub fn anonymous(room_id: String) -> NewRole {
         NewRole {
             room_id,
-            name: GENERIC_ROLE_ANONYMOUS,
+            name: String::from(GENERIC_ROLE_ANONYMOUS),
 
-            color: Some("#575757"),
+            color: Some(String::from("#575757")),
             is_default: true,
             position: 1002,
 
@@ -515,12 +526,12 @@ impl<'a> NewRole<'a> {
     }
 
     /// Get Everyone role.
-    pub fn everyone(room_id: String) -> NewRole<'a> {
+    pub fn everyone(room_id: String) -> NewRole {
         NewRole {
             room_id,
-            name: GENERIC_ROLE_EVERYONE,
+            name: String::from(GENERIC_ROLE_EVERYONE),
 
-            color: Some("#8e8e8e"),
+            color: Some(String::from("#8e8e8e")),
             is_default: true,
             position: 1003,
 

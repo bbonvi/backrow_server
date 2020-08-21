@@ -19,6 +19,7 @@ pub enum ActionType {
     RoleCreate,
     RoleUpdate,
     RoleDelete,
+    RoleView,
     VideoAdd,
     VideoDelete,
     VideoMove,
@@ -41,14 +42,29 @@ pub struct AssertPermission {
 }
 
 impl User {
-    pub fn assert_permission(user: Option<User>, room: Room) -> AssertPermission {
-        AssertPermission { user, room }
+    pub fn is_allowed(
+        &self,
+        room: &Room,
+        action_type: ActionType,
+        conn: &PgConnection,
+    ) -> Result<bool, db::DieselError> {
+        AssertPermission::new(Some(self), room).is_allowed(action_type, conn)
+    }
+    pub fn is_anonymous_allowed(
+        room: &Room,
+        action_type: ActionType,
+        conn: &PgConnection,
+    ) -> Result<bool, db::DieselError> {
+        AssertPermission::new(None, room).is_allowed(action_type, conn)
     }
 }
 
 impl AssertPermission {
-    pub fn new(user: Option<User>, room: Room) -> AssertPermission {
-        AssertPermission { user, room }
+    pub fn new(user: Option<&User>, room: &Room) -> AssertPermission {
+        AssertPermission {
+            user: user.map(|u| u.clone()),
+            room: room.clone(),
+        }
     }
 
     pub fn is_allowed(
@@ -60,6 +76,8 @@ impl AssertPermission {
 
         // Get user roles sorted by `position`, which indicates role's priority.
         let roles = db::helpers::list_user_roles_in_room(user_id, self.room.id.to_owned(), &conn)?;
+
+        // TODO: user can not edit role higher in priority than his! same for kicks and bans.
 
         // Loop over roles until role with not `unset` permission is found.
         // It'll fallback to `everyone` in the worst case.
@@ -78,6 +96,7 @@ impl AssertPermission {
                 ActionType::RoleCreate => role.role_create,
                 ActionType::RoleUpdate => role.role_update,
                 ActionType::RoleDelete => role.role_delete,
+                ActionType::RoleView => role.role_view,
                 ActionType::VideoAdd => role.video_create,
                 ActionType::VideoDelete => role.video_delete,
                 ActionType::VideoMove => role.video_move,
